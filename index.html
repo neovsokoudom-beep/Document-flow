@@ -114,6 +114,43 @@
       steps[index] = value;
     }
 
+    function postToAppsScriptViaForm(data) {
+      return new Promise(function(resolve, reject) {
+        try {
+          var iframeName = 'hidden_iframe_' + Date.now();
+          var iframe = document.createElement('iframe');
+          iframe.name = iframeName;
+          iframe.style.display = 'none';
+          document.body.appendChild(iframe);
+
+          var form = document.createElement('form');
+          form.method = 'POST';
+          form.action = API_URL;
+          form.target = iframeName;
+          form.style.display = 'none';
+
+          Object.keys(data).forEach(function(k) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = k;
+            input.value = (typeof data[k] === 'string') ? data[k] : JSON.stringify(data[k]);
+            form.appendChild(input);
+          });
+
+          document.body.appendChild(form);
+          form.submit();
+
+          setTimeout(function() {
+            if (form.parentNode) form.parentNode.removeChild(form);
+            if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+            resolve(true);
+          }, 1200);
+        } catch (e) {
+          reject(e);
+        }
+      });
+    }
+
     async function confirmAndMove() {
       var title = document.getElementById('workflowTitle').value.trim();
       var btn = document.getElementById('confirmBtn');
@@ -137,22 +174,15 @@
 
       var sent = false;
       try {
-        var form = new URLSearchParams();
-        form.append('action', 'insert');
-        form.append('id', currentWorkflowData.id);
-        form.append('title', currentWorkflowData.title);
-        form.append('steps', JSON.stringify(currentWorkflowData.steps));
-        form.append('date', currentWorkflowData.date);
-        form.append('status', currentWorkflowData.status);
-
-        await fetch(API_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: form.toString()
+        await postToAppsScriptViaForm({
+          action: 'insert',
+          id: currentWorkflowData.id,
+          title: currentWorkflowData.title,
+          steps: currentWorkflowData.steps,
+          date: currentWorkflowData.date,
+          status: currentWorkflowData.status
         });
-
-        sent = true; // no-cors response is opaque; this means request was sent
+        sent = true;
       } catch (e) {
         console.error(e);
         sent = false;
