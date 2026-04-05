@@ -4,32 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Workflow Builder</title>
+  <link rel="icon" href="data:,">
   <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
   <style>
-    :root { --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff; --success: #10b981; --error: #ef4444; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 2rem; margin: 0; }
-    .container { width: 100%; max-width: 700px; background: var(--card); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    h2 { color: var(--primary); margin-top: 0; }
+    :root { --primary: #2563eb; --bg: #f3f4f6; --card: #fff; --success: #10b981; --error: #ef4444; }
+    body { font-family: "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 2rem; display: flex; justify-content: center; }
+    .container { width: 100%; max-width: 700px; background: var(--card); padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    h2 { margin-top: 0; color: var(--primary); }
     .form-group { margin-bottom: 1.25rem; }
-    label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-    input[type="text"] { width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; box-sizing: border-box; }
-    .step-list { list-style: none; padding: 0; margin: 0 0 1rem; }
-    .step-item { display: flex; gap: 10px; margin-bottom: 0.75rem; align-items: center; }
-    .step-number { background: var(--primary); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
-    .step-item input { flex: 1; padding: 0.55rem; border: 1px solid #d1d5db; border-radius: 4px; }
-    .btn-group { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
-    button { padding: 0.6rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
-    .btn-secondary { background: #e5e7eb; }
-    .btn-danger { background: #fee2e2; color: #dc2626; }
-    .btn-primary { background: var(--primary); color: white; width: 100%; padding: 0.9rem; font-size: 1rem; }
-    .btn-success { background: var(--success); color: white; width: 100%; padding: 0.9rem; margin-top: 10px; }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .workflow-step-card { background: #f8fafc; border-left: 4px solid var(--primary); padding: 1rem; margin-bottom: 0.75rem; }
-    .status { padding: 0.75rem; border-radius: 6px; margin: 1rem 0; min-height: 20px; }
-    .status.error { background: #fee2e2; color: #991b1b; }
-    .status.success { background: #dcfce7; color: #166534; }
-    .status.loading { background: #dbeafe; color: #1e40af; }
+    label { display:block; margin-bottom:.5rem; font-weight:600; }
+    input[type="text"] { width:100%; padding:.75rem; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box; }
+    .step-list { list-style:none; padding:0; margin:0 0 1rem; }
+    .step-item { display:flex; gap:10px; align-items:center; margin-bottom:.75rem; }
+    .step-number { width:28px; height:28px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0; }
+    .step-item input { flex:1; padding:.55rem; border:1px solid #d1d5db; border-radius:4px; }
+    .btn-group { display:flex; gap:.5rem; margin-bottom:1.5rem; }
+    button { border:none; border-radius:6px; padding:.6rem 1rem; font-weight:600; cursor:pointer; }
+    .btn-secondary { background:#e5e7eb; }
+    .btn-danger { background:#fee2e2; color:#dc2626; }
+    .btn-primary { background:var(--primary); color:#fff; width:100%; padding:.9rem; }
+    .btn-success { background:var(--success); color:#fff; width:100%; padding:.9rem; margin-top:10px; }
+    .panel { display:none; } .panel.active { display:block; }
+    .workflow-step-card { background:#f8fafc; border-left:4px solid var(--primary); padding:1rem; margin-bottom:.75rem; }
+    .status { min-height:20px; padding:.75rem; border-radius:6px; margin:1rem 0; }
+    .status.loading { background:#dbeafe; color:#1e40af; }
+    .status.success { background:#dcfce7; color:#166534; }
+    .status.error { background:#fee2e2; color:#991b1b; }
   </style>
 </head>
 <body>
@@ -40,198 +40,172 @@
 
       <div class="form-group">
         <label>Workflow Title *</label>
-        <input type="text" id="workflowTitle" placeholder="e.g., Employee Onboarding" />
+        <input id="workflowTitle" type="text" placeholder="e.g., Employee Onboarding" />
       </div>
 
       <div class="form-group">
         <label>Steps *</label>
-        <ul class="step-list" id="stepListContainer"></ul>
+        <ul id="stepListContainer" class="step-list"></ul>
         <div class="btn-group">
-          <button type="button" class="btn-secondary" onclick="window.addStep()">+ Add Step</button>
-          <button type="button" class="btn-danger" onclick="window.removeStep()">- Remove Step</button>
+          <button class="btn-secondary" type="button" onclick="addStep()">+ Add Step</button>
+          <button class="btn-danger" type="button" onclick="removeStep()">- Remove Step</button>
         </div>
       </div>
 
-      <button type="button" class="btn-primary" id="confirmBtn" onclick="window.confirmAndMove()">Confirm & Generate Report</button>
+      <button id="confirmBtn" class="btn-primary" type="button" onclick="confirmAndMove()">Confirm & Generate Report</button>
     </div>
 
     <div id="panel-2" class="panel">
       <h2>Workflow Report</h2>
       <div id="reportContent"></div>
-      <div style="font-size:0.85rem;color:#6b7280;margin-top:1rem;padding-top:1rem;border-top:1px solid #e5e7eb;">
+      <div style="font-size:.85rem;color:#6b7280;margin-top:1rem;padding-top:1rem;border-top:1px solid #e5e7eb;">
         <p><strong>ID:</strong> <span id="docId"></span></p>
         <p><strong>Date:</strong> <span id="timestamp"></span></p>
-        <p><strong>Saved to Google Sheets:</strong> <span id="saveStatus"></span></p>
+        <p><strong>Sent to Google Sheets:</strong> <span id="saveStatus"></span></p>
       </div>
-      <button type="button" class="btn-success" onclick="window.exportToExcel()">📥 Download Excel</button>
-      <button type="button" class="btn-secondary" style="margin-top:1rem; width:100%" onclick="location.reload()">Create New</button>
+      <button type="button" class="btn-success" onclick="exportToExcel()">📥 Download Excel</button>
+      <button type="button" class="btn-secondary" style="margin-top:1rem;width:100%" onclick="location.reload()">Create New</button>
     </div>
   </div>
 
   <script>
-    (function() {
-      if (window.workflowAppInitialized) return;
-      window.workflowAppInitialized = true;
+    var API_URL = 'https://script.google.com/macros/s/AKfycbzhXrKbCbxbWQzcarr7te9NUmfl9hFXKiOmIJf34zeAW-rW4l4wTHrsKb0zFjL5fgZg/exec';
+    var steps = ['Initial Review', 'Manager Approval', 'Documentation', 'Training', 'Final Sign-off'];
+    var currentWorkflowData = {};
 
-      var API_URL = 'https://script.google.com/macros/s/AKfycbzhXrKbCbxbWQzcarr7te9NUmfl9hFXKiOmIJf34zeAW-rW4l4wTHrsKb0zFjL5fgZg/exec';
-      var steps = ["Initial Review", "Manager Approval", "Documentation", "Training", "Final Sign-off"];
-      var currentWorkflowData = {};
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&​amp;').replace(/</g, '&​lt;')
+        .replace(/>/g, '&​gt;').replace(/"/g, '&​quot;')
+        .replace(/'/g, '&​#039;');
+    }
 
-      function renderSteps() {
-        var container = document.getElementById('stepListContainer');
-        container.innerHTML = '';
-        steps.forEach(function(step, index) {
-          var li = document.createElement('li');
-          li.className = 'step-item';
-          li.innerHTML =
-            '<span class="step-number">' + (index + 1) + '</span>' +
-            '<input type="text" value="' + escapeHtml(step) + '" onchange="window.updateStep(' + index + ', this.value)">';
-          container.appendChild(li);
-        });
-      }
+    function showStatus(msg, type) {
+      var el = document.getElementById('statusMsg');
+      el.className = type ? ('status ' + type) : '';
+      el.textContent = msg || '';
+    }
 
-      function escapeHtml(str) {
-        return String(str)
-          .replace(/&/g, '&​amp;')
-          .replace(/</g, '&​lt;')
-          .replace(/>/g, '&​gt;')
-          .replace(/"/g, '&​quot;')
-          .replace(/'/g, '&​#039;');
-      }
+    function renderSteps() {
+      var c = document.getElementById('stepListContainer');
+      c.innerHTML = '';
+      steps.forEach(function(step, i) {
+        var li = document.createElement('li');
+        li.className = 'step-item';
+        li.innerHTML =
+          '<span class="step-number">' + (i + 1) + '</span>' +
+          '<input type="text" value="' + escapeHtml(step) + '" onchange="updateStep(' + i + ', this.value)">';
+        c.appendChild(li);
+      });
+    }
 
-      function showStatus(msg, type) {
-        var el = document.getElementById('statusMsg');
-        el.className = type ? ('status ' + type) : '';
-        el.textContent = msg || '';
-      }
-
-      window.addStep = function() {
-        steps.push('New Step ' + (steps.length + 1));
-        renderSteps();
-      };
-
-      window.removeStep = function() {
-        if (steps.length > 1) {
-          steps.pop();
-          renderSteps();
-        } else {
-          showStatus('You need at least 1 step', 'error');
-        }
-      };
-
-      window.updateStep = function(index, value) {
-        steps[index] = value;
-      };
-
-      window.confirmAndMove = async function() {
-        var title = document.getElementById('workflowTitle').value.trim();
-        var btn = document.getElementById('confirmBtn');
-
-        if (!title) {
-          showStatus('Please enter a title', 'error');
-          return;
-        }
-
-        var cleanedSteps = steps.map(function(s) { return (s || '').trim(); }).filter(Boolean);
-        if (!cleanedSteps.length) {
-          showStatus('Please add at least one step', 'error');
-          return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = 'Saving...';
-        showStatus('Saving to Google Sheets...', 'loading');
-
-        currentWorkflowData = {
-          title: title,
-          steps: cleanedSteps,
-          id: 'WF-' + Date.now(),
-          date: new Date().toISOString(),
-          status: 'draft'
-        };
-
-        var savedToSheet = false;
-        var saveMessage = '';
-
-        try {
-          var res = await fetch(API_URL + '?action=insert', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'insert',
-              id: currentWorkflowData.id,
-              title: currentWorkflowData.title,
-              steps: currentWorkflowData.steps,
-              date: currentWorkflowData.date,
-              status: currentWorkflowData.status
-            })
-          });
-
-          var result = await res.json();
-          savedToSheet = !!(result && result.success);
-          saveMessage = result && result.message ? result.message : '';
-        } catch (err) {
-          saveMessage = String(err);
-          savedToSheet = false;
-        }
-
-        var stepsHTML = '';
-        currentWorkflowData.steps.forEach(function(s, i) {
-          stepsHTML += '<div class="workflow-step-card"><strong>Step ' + (i + 1) + ':</strong> ' + escapeHtml(s) + '</div>';
-        });
-
-        document.getElementById('reportContent').innerHTML =
-          '<div style="border-bottom:2px solid #f3f4f6;padding-bottom:1rem;margin-bottom:1rem;">' +
-          '<h1 style="margin:0;">' + escapeHtml(currentWorkflowData.title) + '</h1>' +
-          '<p style="margin:0.5rem 0;color:#6b7280;">Total Steps: ' + currentWorkflowData.steps.length + '</p>' +
-          '</div>' + stepsHTML;
-
-        document.getElementById('docId').textContent = currentWorkflowData.id;
-        document.getElementById('timestamp').textContent = currentWorkflowData.date;
-        document.getElementById('saveStatus').textContent = savedToSheet ? 'Yes ✓' : ('No' + (saveMessage ? ' (' + saveMessage + ')' : ''));
-        document.getElementById('saveStatus').style.color = savedToSheet ? 'var(--success)' : 'var(--error)';
-
-        document.getElementById('panel-1').classList.remove('active');
-        document.getElementById('panel-2').classList.add('active');
-
-        btn.disabled = false;
-        btn.textContent = 'Confirm & Generate Report';
-
-        if (savedToSheet) {
-          showStatus('Saved to Google Sheets!', 'success');
-        } else {
-          showStatus('Failed to save to Google Sheets.', 'error');
-        }
-      };
-
-      window.exportToExcel = function() {
-        var data = [
-          ['WORKFLOW REPORT'],
-          [],
-          ['Title:', currentWorkflowData.title || ''],
-          ['ID:', currentWorkflowData.id || ''],
-          ['Date:', currentWorkflowData.date || ''],
-          [],
-          ['Step #', 'Action Item', 'Status']
-        ];
-
-        (currentWorkflowData.steps || []).forEach(function(step, i) {
-          data.push([i + 1, step, 'Pending']);
-        });
-
-        var ws = XLSX.utils.aoa_to_sheet(data);
-        ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
-        ws['!cols'] = [{ wch: 10 }, { wch: 40 }, { wch: 15 }];
-
-        var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'Report');
-
-        var filename = (currentWorkflowData.title || 'workflow_report').replace(/\s+/g, '_') + '.xlsx';
-        XLSX.writeFile(wb, filename);
-      };
-
+    function addStep() {
+      steps.push('New Step ' + (steps.length + 1));
       renderSteps();
-    })();
+    }
+
+    function removeStep() {
+      if (steps.length <= 1) return showStatus('You need at least 1 step', 'error');
+      steps.pop();
+      renderSteps();
+    }
+
+    function updateStep(index, value) {
+      steps[index] = value;
+    }
+
+    async function confirmAndMove() {
+      var title = document.getElementById('workflowTitle').value.trim();
+      var btn = document.getElementById('confirmBtn');
+
+      if (!title) return showStatus('Please enter a title', 'error');
+
+      var cleanedSteps = steps.map(function(s){ return String(s || '').trim(); }).filter(Boolean);
+      if (!cleanedSteps.length) return showStatus('Please add at least one step', 'error');
+
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      showStatus('Sending to Google Sheets...', 'loading');
+
+      currentWorkflowData = {
+        title: title,
+        steps: cleanedSteps,
+        id: 'WF-' + Date.now(),
+        date: new Date().toISOString(),
+        status: 'draft'
+      };
+
+      var sent = false;
+      try {
+        var form = new URLSearchParams();
+        form.append('action', 'insert');
+        form.append('id', currentWorkflowData.id);
+        form.append('title', currentWorkflowData.title);
+        form.append('steps', JSON.stringify(currentWorkflowData.steps));
+        form.append('date', currentWorkflowData.date);
+        form.append('status', currentWorkflowData.status);
+
+        await fetch(API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: form.toString()
+        });
+
+        sent = true; // no-cors response is opaque; this means request was sent
+      } catch (e) {
+        console.error(e);
+        sent = false;
+      }
+
+      var stepsHTML = '';
+      currentWorkflowData.steps.forEach(function(s, i) {
+        stepsHTML += '<div class="workflow-step-card"><strong>Step ' + (i + 1) + ':</strong> ' + escapeHtml(s) + '</div>';
+      });
+
+      document.getElementById('reportContent').innerHTML =
+        '<div style="border-bottom:2px solid #f3f4f6;padding-bottom:1rem;margin-bottom:1rem;">' +
+        '<h1 style="margin:0;">' + escapeHtml(currentWorkflowData.title) + '</h1>' +
+        '<p style="margin:.5rem 0;color:#6b7280;">Total Steps: ' + currentWorkflowData.steps.length + '</p>' +
+        '</div>' + stepsHTML;
+
+      document.getElementById('docId').textContent = currentWorkflowData.id;
+      document.getElementById('timestamp').textContent = currentWorkflowData.date;
+      document.getElementById('saveStatus').textContent = sent ? 'Sent ✓' : 'No';
+      document.getElementById('saveStatus').style.color = sent ? 'var(--success)' : 'var(--error)';
+
+      document.getElementById('panel-1').classList.remove('active');
+      document.getElementById('panel-2').classList.add('active');
+
+      btn.disabled = false;
+      btn.textContent = 'Confirm & Generate Report';
+      showStatus(sent ? 'Request sent to Google Sheets.' : 'Failed to send request.', sent ? 'success' : 'error');
+    }
+
+    function exportToExcel() {
+      var data = [
+        ['WORKFLOW REPORT'], [],
+        ['Title:', currentWorkflowData.title || ''],
+        ['ID:', currentWorkflowData.id || ''],
+        ['Date:', currentWorkflowData.date || ''],
+        [],
+        ['Step #', 'Action Item', 'Status']
+      ];
+
+      (currentWorkflowData.steps || []).forEach(function(step, i) {
+        data.push([i + 1, step, 'Pending']);
+      });
+
+      var ws = XLSX.utils.aoa_to_sheet(data);
+      ws['!merges'] = [{ s: { r: 0, c: 0 }, e: { r: 0, c: 2 } }];
+      ws['!cols'] = [{ wch: 10 }, { wch: 40 }, { wch: 15 }];
+
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Report');
+      XLSX.writeFile(wb, (currentWorkflowData.title || 'workflow_report').replace(/\s+/g, '_') + '.xlsx');
+    }
+
+    renderSteps();
   </script>
 </body>
 </html>
