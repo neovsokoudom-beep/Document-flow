@@ -37,11 +37,11 @@
       <h2>First Panel: Build Workflow</h2>
       <div class="hint">Fill title and steps, then click Confirm to move to the report panel.</div>
 
-      <label for="title">Fill Title</label>
-      <input id="title" placeholder="Purchase Request - Printer" />
-
       <label for="workflow_id">ID</label>
       <input id="workflow_id" placeholder="WF-2026-0001" />
+
+      <label for="title">Fill Title</label>
+      <input id="title" placeholder="Purchase Request - Printer" />
 
       <div id="stepsContainer" style="margin-top:8px"></div>
 
@@ -150,6 +150,16 @@
       return d.getFullYear() + '-' + m + '-' + day;
     }
 
+    function suggestWorkflowId() {
+      var d = new Date();
+      var y = d.getFullYear();
+      var m = String(d.getMonth() + 1).padStart(2, '0');
+      var day = String(d.getDate()).padStart(2, '0');
+      var hh = String(d.getHours()).padStart(2, '0');
+      var mm = String(d.getMinutes()).padStart(2, '0');
+      return 'WF-' + y + m + day + '-' + hh + mm;
+    }
+
     function createStepInput(value) {
       var container = document.getElementById('stepsContainer');
       var row = document.createElement('div');
@@ -223,12 +233,13 @@
         if (!raw) {
           for (var i = 0; i < DEFAULT_STEPS; i++) createStepInput('');
           document.getElementById('date').value = todayIso();
+          document.getElementById('workflow_id').value = suggestWorkflowId();
           return;
         }
 
         var d = JSON.parse(raw);
         document.getElementById('title').value = d.title || '';
-        document.getElementById('workflow_id').value = d.workflow_id || '';
+        document.getElementById('workflow_id').value = d.workflow_id || suggestWorkflowId();
         document.getElementById('date').value = d.date || todayIso();
         document.getElementById('reference_number').value = d.reference_number || '';
         document.getElementById('tags').value = d.tags || '';
@@ -282,12 +293,31 @@
     }
 
     async function postApi(action, data) {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        return await new Promise(function(resolve, reject) {
+          google.script.run
+            .withSuccessHandler(function(result) {
+              resolve(result || { success: false, error: 'Empty server response' });
+            })
+            .withFailureHandler(function(err) {
+              reject(new Error(err && err.message ? err.message : String(err)));
+            })
+            .webApi(action, data || {});
+        });
+      }
+
       var res = await fetch(window.location.href.split('?')[0], {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: action, data: data })
       });
-      return await res.json();
+
+      var text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error('Server returned non-JSON response. Please redeploy latest Apps Script version.');
+      }
     }
 
     async function submitWorkflow() {
@@ -313,7 +343,7 @@
 
     function clearAll() {
       document.getElementById('title').value = '';
-      document.getElementById('workflow_id').value = '';
+      document.getElementById('workflow_id').value = suggestWorkflowId();
       document.getElementById('reference_number').value = '';
       document.getElementById('tags').value = '';
       document.getElementById('date').value = todayIso();
