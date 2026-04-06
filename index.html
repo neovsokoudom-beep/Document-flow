@@ -1,44 +1,38 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Document Entry and Search</title>
   <style>
-    :root{--accent:#0b74de;--muted:#666;--bg:#f7f9fb;--card:#fff}
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans",Arial;margin:0;background:var(--bg);color:#111}
-    .container{max-width:900px;margin:16px auto;padding:12px}
-    .card{background:var(--card);border-radius:10px;padding:12px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-    h1{font-size:18px;margin:0 0 8px}
-    label{display:block;font-size:13px;margin:8px 0 4px;color:var(--muted)}
-    input[type=text], input[type=date], input[type=number], select, textarea {
-      width:100%;padding:10px;border:1px solid #e3e6ea;border-radius:8px;font-size:15px;box-sizing:border-box;
-    }
-    .row{display:flex;gap:8px}
-    .row .col{flex:1}
-    .actions{display:flex;gap:8px;margin-top:10px}
-    button{background:var(--accent);color:#fff;border:0;padding:10px 14px;border-radius:8px;font-weight:600;cursor:pointer}
-    button.secondary{background:#e9eef7;color:var(--accent);border:1px solid #d6e6fb}
-    .small{font-size:13px;color:var(--muted)}
-    .results{list-style:none;padding:0;margin:0}
-    .result{display:flex;justify-content:space-between;align-items:center;padding:10px;border-bottom:1px solid #f0f2f4;gap:8px}
-    .meta{font-size:13px;color:var(--muted)}
-    .filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-    @media(min-width:720px){ .row{flex-wrap:nowrap} .container{padding:20px} }
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fb; color: #111; }
+    .wrap { max-width: 900px; margin: 20px auto; padding: 0 12px; }
+    .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    h2 { margin: 0 0 10px; font-size: 18px; }
+    label { display: block; margin-top: 8px; font-size: 13px; color: #666; }
+    input, select { width: 100%; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; padding: 9px; font-size: 14px; }
+    .row { display: flex; gap: 8px; }
+    .row > div { flex: 1; }
+    .btns { display: flex; gap: 8px; margin-top: 10px; }
+    button { border: 0; border-radius: 8px; padding: 10px 12px; cursor: pointer; font-weight: 700; }
+    .primary { background: #0b74de; color: #fff; }
+    .secondary { background: #e8edf7; color: #0b74de; }
+    .muted { color: #666; font-size: 13px; }
+    ul { list-style: none; padding: 0; margin: 10px 0 0; }
+    li { padding: 10px 0; border-bottom: 1px solid #eee; }
+    @media (max-width: 700px) { .row { flex-direction: column; } }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="wrap">
     <div class="card">
-      <h1>បញ្ចូលឯកសារ Document Entry</h1>
-      <p class="small">Enter document details and tap Submit. បញ្ចូលព័ត៌មានឯកសារ ហើយចុច Submit។</p>
-
+      <h2>Document Entry</h2>
       <form id="entryForm">
-        <label for="title">Title សារសំខាន់</label>
-        <input id="title" name="title" type="text" required placeholder="Purchase Request - Printer">
+        <label>Title</label>
+        <input id="title" required placeholder="Purchase Request - Printer" />
 
-        <label for="document_type">Document Type ប្រភេទឯកសារ</label>
-        <select id="document_type" name="document_type" required>
+        <label>Document Type</label>
+        <select id="document_type" required>
           <option value="Purchase">Purchase</option>
           <option value="Contract">Contract</option>
           <option value="Invoice">Invoice</option>
@@ -46,326 +40,206 @@
         </select>
 
         <div class="row">
-          <div class="col">
-            <label for="date">Date ថ្ងៃទី</label>
-            <input id="date" name="date" type="date" required>
+          <div>
+            <label>Date</label>
+            <input id="date" type="date" required />
           </div>
-          <div class="col">
-            <label for="amount">Amount ចំនួន</label>
-            <input id="amount" name="amount" type="number" step="0.01" placeholder="1250.50">
+          <div>
+            <label>Amount</label>
+            <input id="amount" type="number" step="0.01" placeholder="1250.50" />
           </div>
         </div>
 
-        <label for="reference_number">Reference Number លេខយោង</label>
-        <input id="reference_number" name="reference_number" type="text" placeholder="PR-2026-0042">
+        <label>Reference Number</label>
+        <input id="reference_number" placeholder="PR-2026-0042" />
 
-        <label for="attachment">Attachment ភ្ជាប់ឯកសារ (pdf, jpg, png)</label>
-        <input id="attachment" name="attachment" type="file" accept=".pdf,.jpg,.jpeg,.png">
+        <label>Tags (comma separated)</label>
+        <input id="tags" placeholder="printer,office" />
 
-        <label for="tags">Tags ស្លាក (comma separated)</label>
-        <input id="tags" name="tags" type="text" placeholder="printer,office">
-
-        <div class="actions">
-          <button type="submit" id="submitBtn">Submit ដាក់ស្នើ</button>
-          <button type="button" class="secondary" id="clearBtn">Clear លុប</button>
+        <div class="btns">
+          <button class="primary" type="submit" id="submitBtn">Submit</button>
+          <button class="secondary" type="button" id="clearBtn">Clear</button>
         </div>
-
-        <p id="entryStatus" class="small" style="margin-top:8px"></p>
+        <div class="muted" id="entryStatus"></div>
       </form>
     </div>
 
     <div class="card">
-      <h1>Search ស្វែងរកឯកសារ</h1>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="quickSearch" type="text" placeholder="Quick search by ID, title, reference" style="flex:1;padding:10px;border-radius:8px;border:1px solid #e3e6ea">
-        <button id="searchBtn" type="button">Search ស្វែងរក</button>
+      <h2>Search Documents</h2>
+      <div class="row">
+        <div style="flex:2">
+          <label>Quick Search</label>
+          <input id="query" placeholder="Search by ID, title, reference" />
+        </div>
+        <div>
+          <label>Type</label>
+          <select id="fType">
+            <option value="">All</option>
+            <option value="Purchase">Purchase</option>
+            <option value="Contract">Contract</option>
+            <option value="Invoice">Invoice</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label>Status</label>
+          <select id="fStatus">
+            <option value="">All</option>
+            <option value="Submitted">Submitted</option>
+          </select>
+        </div>
       </div>
 
-      <div class="filters" style="margin-top:10px">
-        <select id="filterType">
-          <option value="">All Types</option>
-          <option value="Purchase">Purchase</option>
-          <option value="Contract">Contract</option>
-          <option value="Invoice">Invoice</option>
-          <option value="Other">Other</option>
-        </select>
-
-        <select id="filterStatus">
-          <option value="">All Status</option>
-          <option value="Submitted">Submitted</option>
-          <option value="Archived">Archived</option>
-        </select>
-
-        <input id="dateFrom" type="date" style="padding:8px;border-radius:8px;border:1px solid #e3e6ea">
-        <input id="dateTo" type="date" style="padding:8px;border-radius:8px;border:1px solid #e3e6ea">
+      <div class="row">
+        <div>
+          <label>Date From</label>
+          <input id="fFrom" type="date" />
+        </div>
+        <div>
+          <label>Date To</label>
+          <input id="fTo" type="date" />
+        </div>
       </div>
 
-      <ul id="results" class="results" style="margin-top:12px"></ul>
-      <p id="searchStatus" class="small" style="margin-top:8px"></p>
+      <div class="btns">
+        <button class="primary" type="button" id="searchBtn">Search</button>
+      </div>
+      <div class="muted" id="searchStatus"></div>
+      <ul id="results"></ul>
     </div>
   </div>
 
   <script>
-    // Same-origin Apps Script endpoint when served from /exec
-    const API_URL = window.location.href.split('?')[0];
-
-    // local draft persistence (until user clears)
-    const DRAFT_KEY = 'doc_entry_draft_v1';
-    const LAST_RESULTS_KEY = 'doc_last_results_v1';
-
-    const entryForm = document.getElementById('entryForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const entryStatus = document.getElementById('entryStatus');
-    const clearBtn = document.getElementById('clearBtn');
-
-    const searchBtn = document.getElementById('searchBtn');
-    const resultsEl = document.getElementById('results');
-    const searchStatus = document.getElementById('searchStatus');
-
-    let lastResults = [];
+    var DRAFT_KEY = 'documentAppDraftV1';
 
     function esc(v) {
-      return String(v ?? '')
-        .replace(/&/g, '&​amp;')
-        .replace(/</g, '&​lt;')
-        .replace(/>/g, '&​gt;')
-        .replace(/"/g, '&​quot;')
-        .replace(/'/g, '&​#039;');
+      return String(v == null ? '' : v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
     }
 
-    function saveDraft() {
-      const draft = {
-        title: document.getElementById('title').value,
+    function getEntryData() {
+      return {
+        title: document.getElementById('title').value.trim(),
         document_type: document.getElementById('document_type').value,
         date: document.getElementById('date').value,
         amount: document.getElementById('amount').value,
-        reference_number: document.getElementById('reference_number').value,
-        tags: document.getElementById('tags').value
+        reference_number: document.getElementById('reference_number').value.trim(),
+        tags: document.getElementById('tags').value.trim()
       };
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     }
 
-    function loadDraft() {
+    function saveDraft() {
       try {
-        const raw = localStorage.getItem(DRAFT_KEY);
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(getEntryData()));
+      } catch (e) {}
+    }
+
+    function restoreDraft() {
+      try {
+        var raw = localStorage.getItem(DRAFT_KEY);
         if (!raw) return;
-        const d = JSON.parse(raw);
-        if (d.title != null) document.getElementById('title').value = d.title;
-        if (d.document_type != null) document.getElementById('document_type').value = d.document_type;
-        if (d.date != null) document.getElementById('date').value = d.date;
-        if (d.amount != null) document.getElementById('amount').value = d.amount;
-        if (d.reference_number != null) document.getElementById('reference_number').value = d.reference_number;
-        if (d.tags != null) document.getElementById('tags').value = d.tags;
-      } catch (_) {}
+        var d = JSON.parse(raw);
+        document.getElementById('title').value = d.title || '';
+        document.getElementById('document_type').value = d.document_type || 'Purchase';
+        document.getElementById('date').value = d.date || '';
+        document.getElementById('amount').value = d.amount || '';
+        document.getElementById('reference_number').value = d.reference_number || '';
+        document.getElementById('tags').value = d.tags || '';
+      } catch (e) {}
     }
 
-    function clearDraft() {
-      localStorage.removeItem(DRAFT_KEY);
-    }
-
-    function cacheResults(results) {
-      lastResults = results || [];
-      localStorage.setItem(LAST_RESULTS_KEY, JSON.stringify(lastResults));
-    }
-
-    function loadCachedResults() {
-      try {
-        const raw = localStorage.getItem(LAST_RESULTS_KEY);
-        lastResults = raw ? JSON.parse(raw) : [];
-      } catch (_) {
-        lastResults = [];
-      }
-    }
-
-    function parseTags(text) {
-      return String(text || '')
-        .split(',')
-        .map(t => t.trim())
-        .filter(Boolean);
-    }
-
-    function fileToDataUrl(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = () => reject(new Error('Failed to read file'));
-        reader.readAsDataURL(file);
+    async function postApi(action, data) {
+      var res = await fetch(window.location.href.split('?')[0], {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: action, data: data })
       });
+      return await res.json();
     }
 
-    async function buildSubmitPayload() {
-      const title = document.getElementById('title').value.trim();
-      const documentType = document.getElementById('document_type').value;
-      const date = document.getElementById('date').value;
-      const amount = document.getElementById('amount').value;
-      const referenceNumber = document.getElementById('reference_number').value.trim();
-      const tags = parseTags(document.getElementById('tags').value);
-      const fileInput = document.getElementById('attachment');
-      const file = fileInput.files.length ? fileInput.files[0] : null;
-
-      if (!title) throw new Error('Title is required');
-      if (!documentType) throw new Error('Document type is required');
-      if (!date) throw new Error('Date is required');
-
-      const payload = {
-        action: 'submit',
-        title,
-        document_type: documentType,
-        date,
-        amount: amount || '',
-        reference_number: referenceNumber,
-        tags,
-        status: 'Submitted'
-      };
-
-      if (file) {
-        if (file.size > 4 * 1024 * 1024) {
-          throw new Error('Attachment too large (max 4MB)');
-        }
-        payload.attachment = {
-          name: file.name,
-          type: file.type || 'application/octet-stream',
-          dataUrl: await fileToDataUrl(file)
-        };
-      }
-
-      return payload;
-    }
-
-    entryForm.addEventListener('submit', async (e) => {
+    document.getElementById('entryForm').addEventListener('submit', async function(e) {
       e.preventDefault();
+      var submitBtn = document.getElementById('submitBtn');
+      var status = document.getElementById('entryStatus');
       submitBtn.disabled = true;
-      entryStatus.textContent = 'Submitting... ស្នើរបានដាក់';
+      status.textContent = 'Submitting...';
 
       try {
-        const payload = await buildSubmitPayload();
+        var payload = getEntryData();
+        var result = await postApi('submit', payload);
+        if (!result.success) throw new Error(result.error || 'Submit failed');
 
-        const res = await fetch(API_URL + '?action=submit', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-
-        if (data && data.success) {
-          const docId = data.data && data.data.document_id ? data.data.document_id : '—';
-          entryStatus.innerHTML = 'Submitted ✓ Document ID: <strong>' + esc(docId) + '</strong>';
-          entryForm.reset();
-          clearDraft();
-          await runSearch();
-        } else {
-          entryStatus.textContent = 'Submit failed: ' + ((data && data.message) || 'Server error');
-        }
+        status.innerHTML = 'Saved. Document ID: <b>' + esc(result.document_id) + '</b>';
+        document.getElementById('entryForm').reset();
+        localStorage.removeItem(DRAFT_KEY);
+        runSearch();
       } catch (err) {
-        entryStatus.textContent = 'Error: ' + err.message;
+        status.textContent = err.message;
       } finally {
         submitBtn.disabled = false;
       }
     });
 
-    clearBtn.addEventListener('click', () => {
-      entryForm.reset();
-      clearDraft();
-      entryStatus.textContent = '';
+    document.getElementById('clearBtn').addEventListener('click', function() {
+      document.getElementById('entryForm').reset();
+      document.getElementById('entryStatus').textContent = '';
+      localStorage.removeItem(DRAFT_KEY);
     });
 
-    async function runSearch(page = 1) {
-      searchBtn.disabled = true;
-      searchStatus.textContent = 'Searching...';
-      resultsEl.innerHTML = '';
-
-      const query = document.getElementById('quickSearch').value.trim();
-      const filters = {
-        document_type: document.getElementById('filterType').value,
-        status: document.getElementById('filterStatus').value,
-        date_from: document.getElementById('dateFrom').value,
-        date_to: document.getElementById('dateTo').value,
-        page,
-        page_size: 25
-      };
+    async function runSearch() {
+      var status = document.getElementById('searchStatus');
+      var list = document.getElementById('results');
+      list.innerHTML = '';
+      status.textContent = 'Searching...';
 
       try {
-        const res = await fetch(API_URL + '?action=search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'search', query, filters })
-        });
-        const data = await res.json();
-        const results = data && Array.isArray(data.results) ? data.results : [];
+        var query = document.getElementById('query').value.trim();
+        var filters = {
+          document_type: document.getElementById('fType').value,
+          status: document.getElementById('fStatus').value,
+          date_from: document.getElementById('fFrom').value,
+          date_to: document.getElementById('fTo').value
+        };
 
-        cacheResults(results);
-        renderResults(results);
-        searchStatus.textContent = results.length ? 'Showing ' + results.length + ' results' : 'No results found';
+        var result = await postApi('search', { query: query, filters: filters });
+        var rows = result && result.results ? result.results : [];
+
+        status.textContent = rows.length ? ('Found ' + rows.length + ' record(s)') : 'No results';
+
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          var li = document.createElement('li');
+          li.innerHTML =
+            '<div><b>' + esc(r.document_id) + '</b> - ' + esc(r.title) + '</div>' +
+            '<div class="muted">' + esc(r.document_type) + ' | ' + esc(r.date) + ' | ' + esc(r.status) + ' | Ref: ' + esc(r.reference_number || '-') + '</div>';
+          list.appendChild(li);
+        }
       } catch (err) {
-        loadCachedResults();
-        renderResults(lastResults);
-        searchStatus.textContent = 'Network error, showing cached results: ' + err.message;
-      } finally {
-        searchBtn.disabled = false;
+        status.textContent = err.message;
       }
     }
 
-    function renderResults(results) {
-      resultsEl.innerHTML = '';
-      results.forEach((r) => {
-        const li = document.createElement('li');
-        li.className = 'result';
-        li.innerHTML =
-          '<div>' +
-            '<div><strong>' + esc(r.document_id || '—') + '</strong> — ' + esc(r.title || '') + '</div>' +
-            '<div class="meta">' + esc(r.document_type || '') + ' • ' + esc(r.date || '') + ' • ' + esc(r.status || '') + '</div>' +
-          '</div>' +
-          '<div style="display:flex;gap:8px">' +
-            '<button type="button" class="secondary action-view" data-id="' + esc(r.document_id || '') + '">View</button>' +
-            '<button type="button" class="action-download" data-id="' + esc(r.document_id || '') + '">Download</button>' +
-          '</div>';
-        resultsEl.appendChild(li);
-      });
-    }
-
-    function findResultById(id) {
-      return lastResults.find(r => String(r.document_id) === String(id));
-    }
-
-    window.viewDoc = function (id) {
-      const item = findResultById(id);
-      if (!item) return alert('Document not found');
-      if (item.attachment_url) window.open(item.attachment_url, '_blank');
-      else alert('No attachment for this document');
-    };
-
-    window.downloadDoc = function (id) {
-      const item = findResultById(id);
-      if (!item) return alert('Document not found');
-      if (item.attachment_url) window.location = item.attachment_url;
-      else alert('No attachment for this document');
-    };
-
-    resultsEl.addEventListener('click', (e) => {
-      const v = e.target.closest('.action-view');
-      const d = e.target.closest('.action-download');
-      if (v) window.viewDoc(v.dataset.id);
-      if (d) window.downloadDoc(d.dataset.id);
+    ['title', 'document_type', 'date', 'amount', 'reference_number', 'tags'].forEach(function(id) {
+      var el = document.getElementById(id);
+      el.addEventListener('input', saveDraft);
+      el.addEventListener('change', saveDraft);
     });
 
-    searchBtn.addEventListener('click', () => runSearch());
-
-    document.getElementById('quickSearch').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); runSearch(); }
+    ['searchBtn', 'fType', 'fStatus', 'fFrom', 'fTo'].forEach(function(id) {
+      document.getElementById(id).addEventListener('click', runSearch);
+      document.getElementById(id).addEventListener('change', runSearch);
     });
 
-    ['title','document_type','date','amount','reference_number','tags'].forEach(id => {
-      document.getElementById(id).addEventListener('input', saveDraft);
-      document.getElementById(id).addEventListener('change', saveDraft);
+    document.getElementById('query').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        runSearch();
+      }
     });
 
-    ['filterType','filterStatus','dateFrom','dateTo'].forEach(id => {
-      document.getElementById(id).addEventListener('change', () => runSearch());
-    });
-
-    loadDraft();
-    loadCachedResults();
-    if (lastResults.length) renderResults(lastResults);
+    restoreDraft();
     runSearch();
   </script>
 </body>
