@@ -308,12 +308,31 @@
       }
 
       var endpoint = String(APPS_SCRIPT_API_URL || '').trim() || window.location.href.split('?')[0];
+      var timeoutMs = 20000;
+      var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      var timer = null;
+      if (controller) {
+        timer = setTimeout(function() {
+          controller.abort();
+        }, timeoutMs);
+      }
 
-      var res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: action, data: data })
-      });
+      var res;
+      try {
+        res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: action, data: data }),
+          signal: controller ? controller.signal : undefined
+        });
+      } catch (fetchErr) {
+        if (fetchErr && fetchErr.name === 'AbortError') {
+          throw new Error('Request timed out after ' + (timeoutMs / 1000) + ' seconds.');
+        }
+        throw fetchErr;
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
 
       var text = await res.text();
       try {
