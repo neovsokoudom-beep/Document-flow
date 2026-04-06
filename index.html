@@ -132,6 +132,7 @@
   </div>
 
   <script>
+    var APPS_SCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbzhXrKbCbxbWQzcarr7te9NUmfl9hFXKiOmIJf34zeAW-rW4l4wTHrsKb0zFjL5fgZg/exec';
     var DRAFT_KEY = 'documentWorkflowDraftV2';
     var MIN_STEPS = 1;
     var DEFAULT_STEPS = 5;
@@ -306,9 +307,9 @@
         });
       }
 
-      var hostHint = 'This page is not running in Apps Script runtime. Open the deployed /exec URL.';
+      var endpoint = String(APPS_SCRIPT_API_URL || '').trim() || window.location.href.split('?')[0];
 
-      var res = await fetch(window.location.href.split('?')[0], {
+      var res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: action, data: data })
@@ -319,12 +320,13 @@
         return JSON.parse(text);
       } catch (e) {
         var preview = String(text || '').replace(/\s+/g, ' ').slice(0, 80);
-        throw new Error(hostHint + ' Current URL: ' + window.location.href + ' | Response: ' + preview);
+        throw new Error('API response is not JSON. Endpoint: ' + endpoint + ' | Response: ' + preview);
       }
     }
 
     function showRuntimeHint() {
       if (typeof google !== 'undefined' && google.script && google.script.run) return;
+      if (String(APPS_SCRIPT_API_URL || '').trim()) return;
       var status = document.getElementById('entryStatus');
       if (!status) return;
       status.textContent = 'Warning: Not in Apps Script runtime. Open the Web App /exec URL to submit/search.';
