@@ -40,6 +40,9 @@
       <label for="title">Fill Title</label>
       <input id="title" placeholder="Purchase Request - Printer" />
 
+      <label for="workflow_id">ID</label>
+      <input id="workflow_id" placeholder="WF-2026-0001" />
+
       <div id="stepsContainer" style="margin-top:8px"></div>
 
       <div class="btns">
@@ -192,14 +195,16 @@
 
     function getEntryData() {
       var title = document.getElementById('title').value.trim();
+      var workflowId = document.getElementById('workflow_id').value.trim();
       var steps = getSteps();
       var report = buildBestWorkflowSummary(title, steps);
       return {
         title: title,
+        workflow_id: workflowId,
         document_type: 'Workflow',
         date: document.getElementById('date').value || todayIso(),
         amount: '',
-        reference_number: document.getElementById('reference_number').value.trim(),
+        reference_number: document.getElementById('reference_number').value.trim() || workflowId,
         tags: document.getElementById('tags').value.trim(),
         steps: steps,
         workflow_report: report
@@ -223,6 +228,7 @@
 
         var d = JSON.parse(raw);
         document.getElementById('title').value = d.title || '';
+        document.getElementById('workflow_id').value = d.workflow_id || '';
         document.getElementById('date').value = d.date || todayIso();
         document.getElementById('reference_number').value = d.reference_number || '';
         document.getElementById('tags').value = d.tags || '';
@@ -240,6 +246,7 @@
 
     function renderReportAndMove() {
       var title = document.getElementById('title').value.trim();
+      var workflowId = document.getElementById('workflow_id').value.trim();
       var steps = getSteps();
       var status = document.getElementById('panelOneStatus');
 
@@ -254,8 +261,11 @@
 
       status.textContent = '';
       var summary = buildBestWorkflowSummary(title, steps);
+      if (workflowId && !document.getElementById('reference_number').value.trim()) {
+        document.getElementById('reference_number').value = workflowId;
+      }
       document.getElementById('reportTitle').textContent = title;
-      document.getElementById('reportMeta').textContent = 'Workflow Type: Approval Flow | Steps: ' + steps.length;
+      document.getElementById('reportMeta').textContent = 'Workflow Type: Approval Flow | ID: ' + (workflowId || '-') + ' | Steps: ' + steps.length;
 
       var reportSteps = document.getElementById('reportSteps');
       reportSteps.innerHTML = '';
@@ -303,6 +313,7 @@
 
     function clearAll() {
       document.getElementById('title').value = '';
+      document.getElementById('workflow_id').value = '';
       document.getElementById('reference_number').value = '';
       document.getElementById('tags').value = '';
       document.getElementById('date').value = todayIso();
@@ -381,7 +392,7 @@
       clearAll();
     });
 
-    ['title', 'date', 'reference_number', 'tags'].forEach(function(id) {
+    ['title', 'workflow_id', 'date', 'reference_number', 'tags'].forEach(function(id) {
       var el = document.getElementById(id);
       el.addEventListener('input', saveDraft);
       el.addEventListener('change', saveDraft);
