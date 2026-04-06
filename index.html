@@ -306,6 +306,8 @@
         });
       }
 
+      var hostHint = 'This page is not running in Apps Script runtime. Open the deployed /exec URL.';
+
       var res = await fetch(window.location.href.split('?')[0], {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -316,8 +318,16 @@
       try {
         return JSON.parse(text);
       } catch (e) {
-        throw new Error('Server returned non-JSON response. Please redeploy latest Apps Script version.');
+        var preview = String(text || '').replace(/\s+/g, ' ').slice(0, 80);
+        throw new Error(hostHint + ' Current URL: ' + window.location.href + ' | Response: ' + preview);
       }
+    }
+
+    function showRuntimeHint() {
+      if (typeof google !== 'undefined' && google.script && google.script.run) return;
+      var status = document.getElementById('entryStatus');
+      if (!status) return;
+      status.textContent = 'Warning: Not in Apps Script runtime. Open the Web App /exec URL to submit/search.';
     }
 
     async function submitWorkflow() {
@@ -441,6 +451,7 @@
     });
 
     restoreDraft();
+    showRuntimeHint();
     runSearch();
   </script>
 </body>
