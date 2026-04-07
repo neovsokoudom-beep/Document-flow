@@ -58,6 +58,8 @@
     .result-steps { color: #111827; font-size: 13px; margin-top: 6px; background: #f9fafb; border-radius: 8px; padding: 6px 8px; }
     .dev-box { border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; background: #fafafa; }
     .dev-box h3 { margin-bottom: 8px; }
+    .dev-entry { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .dev-auth-panel { margin-top: 10px; }
     .pill { display: inline-block; border-radius: 999px; font-size: 12px; padding: 3px 8px; font-weight: 700; }
     .pill.lock-active { background: #fff7ed; color: #9a3412; }
     .pill.lock-completed { background: #ecfdf5; color: #065f46; }
@@ -142,7 +144,31 @@
       <div class="muted" id="entryStatus"></div>
     </div>
 
-    <div class="card">
+    <div class="card" id="developerEntryCard">
+      <div class="dev-entry">
+        <h2>Developer</h2>
+        <button class="secondary" type="button" id="openDeveloperLoginBtn">Open</button>
+      </div>
+      <div class="dev-box dev-auth-panel hidden" id="developerLoginPanel">
+        <div class="row">
+          <div>
+            <label for="developerLoginId">Developer ID</label>
+            <input id="developerLoginId" placeholder="Enter developer ID" />
+          </div>
+          <div>
+            <label for="developerLoginPassword">Password</label>
+            <input id="developerLoginPassword" type="password" placeholder="Enter password" />
+          </div>
+        </div>
+        <div class="btns">
+          <button class="primary" type="button" id="unlockDeveloperBtn">Unlock</button>
+          <button class="secondary" type="button" id="cancelDeveloperBtn">Cancel</button>
+        </div>
+        <div class="muted" id="developerAccessStatus"></div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="developerLockCard">
       <h2>Developer Lock Controls</h2>
       <div class="dev-box">
         <div class="row">
@@ -220,6 +246,8 @@
     var DRAFT_KEY = 'documentWorkflowDraftV2';
     var MIN_STEPS = 1;
     var DEFAULT_STEPS = 5;
+    var DEVELOPER_LOGIN_ID = 'developer';
+    var DEVELOPER_LOGIN_PASSWORD = 'dev123';
 
     function esc(v) {
       return String(v == null ? '' : v)
@@ -535,6 +563,7 @@
 
     async function loadLockConfig() {
       var status = document.getElementById('developerStatus');
+      if (!status) return;
       try {
         var result = await postApi('getLockConfig', {});
         if (!result.success) throw new Error(result.error || 'Failed to load lock config');
@@ -548,6 +577,7 @@
 
     async function saveLockConfig() {
       var status = document.getElementById('developerStatus');
+      if (!status) return;
       status.textContent = 'Saving lock structure...';
       try {
         var payload = {
@@ -564,6 +594,7 @@
 
     async function clearAllLocksDeveloper() {
       var status = document.getElementById('developerStatus');
+      if (!status) return;
       status.textContent = 'Clearing all locks...';
       try {
         var result = await postApi('clearAllLocks', {});
@@ -595,6 +626,37 @@
       document.getElementById('fFrom').value = '';
       document.getElementById('fTo').value = '';
       runSearch();
+    }
+
+    function openDeveloperLogin() {
+      var panel = document.getElementById('developerLoginPanel');
+      if (!panel) return;
+      panel.classList.remove('hidden');
+      var idInput = document.getElementById('developerLoginId');
+      if (idInput) idInput.focus();
+    }
+
+    function closeDeveloperLogin() {
+      var panel = document.getElementById('developerLoginPanel');
+      if (panel) panel.classList.add('hidden');
+      var status = document.getElementById('developerAccessStatus');
+      if (status) status.textContent = '';
+    }
+
+    async function unlockDeveloperPanel() {
+      var idValue = String(document.getElementById('developerLoginId').value || '').trim();
+      var passwordValue = String(document.getElementById('developerLoginPassword').value || '');
+      var status = document.getElementById('developerAccessStatus');
+
+      if (idValue !== DEVELOPER_LOGIN_ID || passwordValue !== DEVELOPER_LOGIN_PASSWORD) {
+        status.textContent = 'Invalid developer ID or password.';
+        return;
+      }
+
+      status.textContent = 'Access granted.';
+      document.getElementById('developerLockCard').classList.remove('hidden');
+      closeDeveloperLogin();
+      await loadLockConfig();
     }
 
     function clearAll() {
@@ -722,6 +784,9 @@
     document.getElementById('clearSearchBtn').addEventListener('click', clearSearchFilters);
     document.getElementById('saveLockConfigBtn').addEventListener('click', saveLockConfig);
     document.getElementById('clearLocksBtn').addEventListener('click', clearAllLocksDeveloper);
+    document.getElementById('openDeveloperLoginBtn').addEventListener('click', openDeveloperLogin);
+    document.getElementById('unlockDeveloperBtn').addEventListener('click', unlockDeveloperPanel);
+    document.getElementById('cancelDeveloperBtn').addEventListener('click', closeDeveloperLogin);
 
     document.getElementById('query').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') {
@@ -731,7 +796,6 @@
     });
 
     restoreDraft();
-    loadLockConfig();
     showRuntimeHint();
     runSearch();
   </script>
