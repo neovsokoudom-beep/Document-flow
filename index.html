@@ -90,6 +90,7 @@
       <div class="btns">
         <button type="button" class="secondary" id="addStepBtn">Add Step</button>
         <button type="button" class="secondary" id="removeStepBtn">Remove Step</button>
+        <button type="button" class="secondary" id="nextStepBtn">Next Step</button>
         <button type="button" class="primary" id="confirmBtn">Confirm</button>
       </div>
       <div class="muted" id="panelOneStatus"></div>
@@ -239,6 +240,17 @@
       <div class="muted" id="searchStatus"></div>
       <div id="results" class="results-grid"></div>
     </div>
+
+    <div class="card">
+      <h2>Data Sources</h2>
+      <div class="muted">
+        HTML source references:
+        <a href="./downloads/gazetteer_sources/source_1.html" target="_blank" rel="noopener noreferrer">Source 1</a> |
+        <a href="./downloads/gazetteer_sources/source_2.html" target="_blank" rel="noopener noreferrer">Source 2</a> |
+        <a href="./downloads/gazetteer_sources/source_3.html" target="_blank" rel="noopener noreferrer">Source 3</a> |
+        <a href="./downloads/gazetteer_sources/source_4.html" target="_blank" rel="noopener noreferrer">Source 4</a>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -248,6 +260,7 @@
     var DEFAULT_STEPS = 5;
     var DEVELOPER_LOGIN_ID = 'developer';
     var DEVELOPER_LOGIN_PASSWORD = 'dev123';
+    var unlockedStepCount = 1;
 
     function esc(v) {
       return String(v == null ? '' : v)
@@ -283,11 +296,15 @@
       input.className = 'step-input';
       input.placeholder = 'Step ' + (container.children.length + 1);
       input.value = value || '';
-      input.addEventListener('input', saveDraft);
+      input.addEventListener('input', function() {
+        saveDraft();
+        syncUnlockedStepCountFromValues_();
+      });
 
       row.appendChild(input);
       container.appendChild(row);
       relabelSteps();
+      applyStepLocks_();
     }
 
     function relabelSteps() {
@@ -295,6 +312,58 @@
       for (var i = 0; i < rows.length; i++) {
         rows[i].placeholder = 'Step ' + (i + 1);
       }
+    }
+
+    function applyStepLocks_() {
+      var inputs = document.querySelectorAll('#stepsContainer .step-input');
+      var maxUnlocked = Math.max(1, Math.min(unlockedStepCount, inputs.length || 1));
+      unlockedStepCount = maxUnlocked;
+      for (var i = 0; i < inputs.length; i++) {
+        inputs[i].disabled = i >= maxUnlocked;
+      }
+    }
+
+    function syncUnlockedStepCountFromValues_() {
+      var inputs = document.querySelectorAll('#stepsContainer .step-input');
+      if (!inputs.length) {
+        unlockedStepCount = 1;
+        return;
+      }
+
+      var unlocked = 1;
+      for (var i = 0; i < inputs.length; i++) {
+        if (String(inputs[i].value || '').trim()) {
+          unlocked = i + 2;
+        } else {
+          break;
+        }
+      }
+      unlockedStepCount = Math.max(1, Math.min(unlocked, inputs.length));
+      applyStepLocks_();
+    }
+
+    function unlockNextStep() {
+      var inputs = document.querySelectorAll('#stepsContainer .step-input');
+      var status = document.getElementById('panelOneStatus');
+      if (!inputs.length) return;
+
+      var currentIndex = Math.max(0, unlockedStepCount - 1);
+      if (currentIndex < inputs.length && !String(inputs[currentIndex].value || '').trim()) {
+        status.textContent = 'Please complete Step ' + (currentIndex + 1) + ' before moving next.';
+        inputs[currentIndex].focus();
+        return;
+      }
+
+      if (unlockedStepCount >= inputs.length) {
+        status.textContent = 'All available steps are unlocked.';
+        return;
+      }
+
+      unlockedStepCount = unlockedStepCount + 1;
+      applyStepLocks_();
+      status.textContent = '';
+      inputs[unlockedStepCount - 1].focus();
+      saveDraft();
     }
 
     function normalizeStepText_(value) {
@@ -747,6 +816,7 @@
 
     document.getElementById('addStepBtn').addEventListener('click', function() {
       createStepInput('');
+      syncUnlockedStepCountFromValues_();
       saveDraft();
     });
 
@@ -755,9 +825,11 @@
       if (container.children.length > MIN_STEPS) {
         container.removeChild(container.lastChild);
         relabelSteps();
+        syncUnlockedStepCountFromValues_();
       }
       saveDraft();
     });
+    document.getElementById('nextStepBtn').addEventListener('click', unlockNextStep);
 
     document.getElementById('confirmBtn').addEventListener('click', renderReportAndMove);
     document.getElementById('backBtn').addEventListener('click', function() {
@@ -796,6 +868,7 @@
     });
 
     restoreDraft();
+    syncUnlockedStepCountFromValues_();
     showRuntimeHint();
     runSearch();
   </script>
