@@ -1,210 +1,59 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Document Workflow Entry and Search</title>
+  <title>Workflow Builder Pro</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f5f7fb; color: #111; }
-    .wrap { max-width: 980px; margin: 20px auto; padding: 0 12px; }
-    .card { background: #fff; border-radius: 10px; padding: 14px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-    h2, h3 { margin: 0 0 10px; font-size: 18px; }
-    label { display: block; margin-top: 8px; font-size: 13px; color: #666; }
-    input, select, textarea {
-      width: 100%; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; padding: 9px; font-size: 14px;
-    }
-    textarea { min-height: 90px; resize: vertical; }
-    .row { display: flex; gap: 8px; }
-    .row > div { flex: 1; }
-    .btns { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
-    button { border: 0; border-radius: 8px; padding: 10px 12px; cursor: pointer; font-weight: 700; }
-    .primary { background: #0b74de; color: #fff; }
-    .secondary { background: #e8edf7; color: #0b74de; }
-    .accent { background: #10b981; color: #fff; }
-    .muted { color: #666; font-size: 13px; }
-    .hidden { display: none; }
-    .step-row { margin-bottom: 8px; }
-    .report-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; }
-    .report-shell { background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); border: 1px solid #dbe8f5; border-radius: 12px; padding: 14px; }
-    .report-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; flex-wrap: wrap; margin-bottom: 10px; }
-    .report-title-wrap h3 { margin: 0; font-size: 24px; line-height: 1.2; color: #0f172a; }
-    .report-sub { margin-top: 4px; color: #475569; font-size: 13px; }
-    .report-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-    .meta-badge { background: #eaf2ff; color: #1e40af; border: 1px solid #bfdbfe; border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 700; white-space: nowrap; }
-    .meta-badge.soft { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
-    .steps-panel { background: #ffffff; border: 1px solid #d9e2ec; border-radius: 10px; padding: 10px 12px; margin-top: 10px; }
-    .steps-title { margin: 0 0 8px; font-size: 14px; color: #334155; }
-    .timeline { list-style: none; margin: 0; padding: 0; }
-    .timeline li { position: relative; padding: 8px 0 8px 32px; border-bottom: 1px dashed #e2e8f0; }
-    .timeline li:last-child { border-bottom: 0; }
-    .timeline li::before { content: ''; position: absolute; left: 9px; top: 15px; width: 9px; height: 9px; border-radius: 50%; background: #0b74de; box-shadow: 0 0 0 3px #dbeafe; }
-    .timeline li::after { content: ''; position: absolute; left: 13px; top: 28px; width: 1px; height: calc(100% - 16px); background: #bfdbfe; }
-    .timeline li:last-child::after { display: none; }
-    .timeline-step { font-size: 13px; color: #64748b; margin-bottom: 2px; }
-    .timeline-text { font-size: 15px; font-weight: 700; color: #0f172a; }
-    .summary-panel { margin-top: 12px; }
-    .summary-panel label { margin-top: 0; margin-bottom: 6px; font-weight: 700; color: #334155; }
-    .summary-panel textarea { background: #ffffff; border-color: #d9e2ec; min-height: 112px; }
-    .hint { background: #f0f9ff; border: 1px solid #bae6fd; color: #075985; border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; }
-    .hint.success { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
-    .results-grid { margin-top: 10px; display: grid; gap: 10px; }
-    .result-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px 12px; background: #ffffff; }
-    .result-title { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
-    .result-title b { font-size: 16px; }
-    .badge { display: inline-block; font-size: 12px; border-radius: 999px; padding: 2px 8px; font-weight: 700; }
-    .badge.submitted { background: #e8f3ff; color: #1d4ed8; }
-    .badge.draft { background: #fff7e6; color: #9a3412; }
-    .result-meta { color: #4b5563; font-size: 13px; margin-top: 4px; }
-    .result-steps { color: #111827; font-size: 13px; margin-top: 6px; background: #f9fafb; border-radius: 8px; padding: 6px 8px; }
-    .dev-box { border: 1px solid #d1d5db; border-radius: 10px; padding: 10px; background: #fafafa; }
-    .dev-box h3 { margin-bottom: 8px; }
-    .dev-entry { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .dev-auth-panel { margin-top: 10px; }
-    .pill { display: inline-block; border-radius: 999px; font-size: 12px; padding: 3px 8px; font-weight: 700; }
-    .pill.lock-active { background: #fff7ed; color: #9a3412; }
-    .pill.lock-completed { background: #ecfdf5; color: #065f46; }
-    .pill.lock-cleared { background: #eef2ff; color: #3730a3; }
-    .pill.lock-none { background: #f1f5f9; color: #334155; }
-    .inline-btn { margin-top: 8px; }
-    @media (max-width: 700px) {
-      .row { flex-direction: column; }
-      .report-title-wrap h3 { font-size: 20px; }
-    }
+    :root { --primary:#0b74de; --bg:#f5f7fb; --card:#fff; --text:#111827; --text-muted:#6b7280; --border:#e5e7eb; --radius:10px; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.5; padding:20px; }
+    .wrap { max-width:1000px; margin:0 auto; }
+    .card { background:var(--card); border-radius:var(--radius); padding:20px; margin-bottom:20px; box-shadow:0 1px 3px rgba(0,0,0,.08); border:1px solid var(--border); }
+    h2 { margin:0 0 14px; font-size:20px; font-weight:700; display:flex; align-items:center; gap:8px; }
+    label { display:block; margin:10px 0 6px; font-weight:600; font-size:14px; }
+    input, select, textarea { width:100%; box-sizing:border-box; border:1px solid var(--border); border-radius:8px; padding:10px 12px; font-size:14px; background:#fff; transition:0.15s; }
+    input:focus, select:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(11,116,222,0.15); }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .row > div { flex:1; min-width:200px; }
+    .btns { display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; }
+    button { border:0; border-radius:8px; padding:10px 16px; cursor:pointer; font-weight:600; font-size:14px; transition:0.15s; display:inline-flex; align-items:center; gap:6px; }
+    button:hover { transform:translateY(-1px); }
+    .primary { background:var(--primary); color:#fff; }
+    .secondary { background:transparent; color:var(--primary); border:1px solid var(--border); }
+    .muted { color:var(--text-muted); font-size:13px; margin-top:8px; }
+    .hidden { display:none !important; }
+    .step-input { margin-bottom:8px; }
+    .result-card { border:1px solid var(--border); border-radius:10px; padding:14px; background:#fff; margin-top:10px; transition:0.2s; }
+    .result-card:hover { box-shadow:0 4px 12px rgba(0,0,0,.05); border-color:#cbd5e1; }
+    .badge { display:inline-block; background:#eaf2ff; color:var(--primary); border-radius:99px; padding:3px 10px; font-size:12px; font-weight:600; }
+    .date-badge { background:#f0fdf4; color:#059669; padding:2px 8px; border-radius:6px; font-size:12px; font-weight:600; }
+    .hint-box { background:#eef2ff; border:1px solid #c7d2fe; color:#1e3a8a; padding:10px; border-radius:8px; margin-bottom:12px; font-size:13px; }
+    #toast-container { position:fixed; bottom:20px; right:20px; z-index:999; display:flex; flex-direction:column; gap:8px; }
+    .toast { background:#fff; border:1px solid var(--border); padding:10px 14px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,.1); font-size:14px; animation:in 0.2s ease; }
+    @keyframes in { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    @media (max-width:600px) { .row { flex-direction:column; } }
   </style>
 </head>
 <body>
+  <div id="toast-container"></div>
   <div class="wrap">
-    <div class="card" id="panelOne">
-      <h2>First Panel: Build Workflow</h2>
-      <div class="hint">Fill title and steps, then click Confirm to move to the report panel.</div>
-      <div class="hint success">Cloud storage is enabled: all submitted/draft records save to the shared Google Sheet for all laptops.</div>
-
-      <label for="workflow_id">ID</label>
-      <input id="workflow_id" placeholder="WF-2026-0001" />
-
-      <label for="title">Fill Title</label>
-      <input id="title" placeholder="Purchase Request - Printer" />
-
-      <div id="stepsContainer" style="margin-top:8px"></div>
-
-      <div class="btns">
-        <button type="button" class="secondary" id="addStepBtn">Add Step</button>
-        <button type="button" class="secondary" id="removeStepBtn">Remove Step</button>
-        <button type="button" class="secondary" id="nextStepBtn">Next Step</button>
-        <button type="button" class="primary" id="confirmBtn">Confirm</button>
+    
+    <!-- SECTION 1: BUILD WORKFLOW -->
+    <div class="card" id="buildPanel">
+      <h2>📝 Build Workflow</h2>
+      <div class="hint-box">
+        Fill in the title, select document type, and add steps. Click Save to store in the <b>Workflows</b> sheet.
       </div>
-      <div class="muted" id="panelOneStatus"></div>
-    </div>
-
-    <div class="card hidden" id="panelTwo">
-      <h2>Second Panel: Workflow Report</h2>
-      <div class="report-shell">
-        <div class="report-head">
-          <div class="report-title-wrap">
-            <h3 id="reportTitle">-</h3>
-            <div class="report-sub" id="reportMeta">-</div>
-          </div>
-          <div class="report-badges">
-            <span class="meta-badge soft" id="reportTypeBadge">Approval Flow</span>
-            <span class="meta-badge" id="reportIdBadge">ID: -</span>
-            <span class="meta-badge soft" id="reportCountBadge">0 Steps</span>
-          </div>
-        </div>
-
-        <div class="steps-panel">
-          <h4 class="steps-title">Workflow Route</h4>
-          <ol id="reportSteps" class="timeline"></ol>
-        </div>
-
-        <div class="summary-panel">
-          <label for="workflowSummary">Workflow Summary</label>
-          <textarea id="workflowSummary" readonly></textarea>
-        </div>
-      </div>
-
-      <div class="row" style="margin-top:10px;">
-        <div>
-          <label for="date">Date</label>
-          <input id="date" type="date" />
-        </div>
-        <div>
-          <label for="reference_number">Reference Number</label>
-          <input id="reference_number" placeholder="WF-2026-0001" />
-        </div>
-      </div>
-
-      <label for="tags">Tags (comma separated)</label>
-      <input id="tags" placeholder="workflow,approval,operations" />
-
-      <div class="btns">
-        <button class="secondary" type="button" id="backBtn">Back</button>
-        <button class="secondary" type="button" id="saveDraftCloudBtn">Save Draft (Cloud)</button>
-        <button class="accent" type="button" id="submitBtn">Submit Workflow</button>
-        <button class="secondary" type="button" id="clearBtn">Clear</button>
-      </div>
-      <div class="muted" id="entryStatus"></div>
-    </div>
-
-    <div class="card" id="developerEntryCard">
-      <div class="dev-entry">
-        <h2>Developer</h2>
-        <button class="secondary" type="button" id="openDeveloperLoginBtn">Open</button>
-      </div>
-      <div class="dev-box dev-auth-panel hidden" id="developerLoginPanel">
-        <div class="row">
-          <div>
-            <label for="developerLoginId">Developer ID</label>
-            <input id="developerLoginId" placeholder="Enter developer ID" />
-          </div>
-          <div>
-            <label for="developerLoginPassword">Password</label>
-            <input id="developerLoginPassword" type="password" placeholder="Enter password" />
-          </div>
-        </div>
-        <div class="btns">
-          <button class="primary" type="button" id="unlockDeveloperBtn">Unlock</button>
-          <button class="secondary" type="button" id="cancelDeveloperBtn">Cancel</button>
-        </div>
-        <div class="muted" id="developerAccessStatus"></div>
-      </div>
-    </div>
-
-    <div class="card hidden" id="developerLockCard">
-      <h2>Developer Lock Controls</h2>
-      <div class="dev-box">
-        <div class="row">
-          <div>
-            <label for="lockMode">Lock Structure Mode</label>
-            <select id="lockMode">
-              <option value="selected">Selected Files Only</option>
-              <option value="all">All Files</option>
-              <option value="none">Disabled</option>
-            </select>
-          </div>
-          <div>
-            <label for="lockTargets">Target Files (ID / Reference / Title, comma or new line)</label>
-            <textarea id="lockTargets" placeholder="WF-20260407-1010&#10;DOC-20260407-130500-123"></textarea>
-          </div>
-        </div>
-        <div class="btns">
-          <button class="secondary" type="button" id="saveLockConfigBtn">Save Lock Structure</button>
-          <button class="secondary" type="button" id="clearLocksBtn">Developer: Clear All Locks</button>
-        </div>
-        <div class="muted" id="developerStatus"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Search Documents</h2>
       <div class="row">
-        <div style="flex:2">
-          <label>Quick Search</label>
-          <input id="query" placeholder="Search by ID, title, step, reference" />
+        <div>
+          <label for="workflow_id">Workflow ID</label>
+          <input id="workflow_id" placeholder="WF-20260424-1015" />
         </div>
         <div>
-          <label>Type</label>
-          <select id="fType">
-            <option value="">All</option>
+          <label for="doc_type">Document Type</label>
+          <select id="doc_type">
+            <option value="">— Select Type —</option>
             <option value="Workflow">Workflow</option>
             <option value="Purchase">Purchase</option>
             <option value="Contract">Contract</option>
@@ -212,655 +61,300 @@
             <option value="Other">Other</option>
           </select>
         </div>
+      </div>
+      <label for="title">Title</label>
+      <input id="title" placeholder="e.g., Office Printer Purchase" />
+      <label>Workflow Steps</label>
+      <div id="stepsContainer" style="margin-top:6px"></div>
+      <div class="btns">
+        <button type="button" class="secondary" id="addStepBtn">+ Add Step</button>
+        <button type="button" class="secondary" id="removeStepBtn">- Remove Last</button>
+        <button type="button" class="primary" id="saveBtn">💾 Save to Workflows</button>
+      </div>
+      <div class="muted" id="buildStatus"></div>
+    </div>
+
+    <!-- SECTION 2: SEARCH & LIST -->
+    <div class="card" id="searchPanel">
+      <h2>🔍 Search Workflows</h2>
+      
+      <div class="row">
+        <div style="flex:2">
+          <label for="query">🔎 Search Query</label>
+          <input id="query" placeholder="Search by ID, title, or step..." />
+        </div>
         <div>
-          <label>Status</label>
-          <select id="fStatus">
-            <option value="">All</option>
-            <option value="Submitted">Submitted</option>
-            <option value="Draft">Draft</option>
+          <label for="fType">Filter Type</label>
+          <select id="fType">
+            <option value="">All Types</option>
+            <option value="Workflow">Workflow</option>
+            <option value="Purchase">Purchase</option>
+            <option value="Contract">Contract</option>
+            <option value="Invoice">Invoice</option>
+            <option value="Other">Other</option>
           </select>
         </div>
       </div>
 
-      <div class="row">
+      <div class="row" style="margin-top:10px;">
         <div>
-          <label>Date From</label>
-          <input id="fFrom" type="date" />
+          <label for="fDateFrom">Date From</label>
+          <input type="date" id="fDateFrom" />
         </div>
         <div>
-          <label>Date To</label>
-          <input id="fTo" type="date" />
+          <label for="fDateTo">Date To</label>
+          <input type="date" id="fDateTo" />
         </div>
       </div>
 
       <div class="btns">
-        <button class="primary" type="button" id="searchBtn">Search</button>
+        <button class="primary" type="button" id="searchBtn">🔍 Search</button>
         <button class="secondary" type="button" id="clearSearchBtn">Clear Filters</button>
       </div>
       <div class="muted" id="searchStatus"></div>
-      <div id="results" class="results-grid"></div>
+      <div id="results"></div>
+    </div>
+
+    <!-- SECTION 3: DEVELOPER TOOLS -->
+    <div class="card" id="devPanel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>🔐 Developer Access</h2>
+        <button class="secondary" id="openDevBtn">Open</button>
+      </div>
+      <div id="devAuth" class="hidden" style="margin-top:12px; padding:12px; background:#fafafa; border-radius:8px;">
+        <div class="row">
+          <div><label>User</label><input id="devUser" placeholder="developer" /></div>
+          <div><label>Password</label><input id="devPass" type="password" /></div>
+        </div>
+        <div class="btns">
+          <button class="primary" id="devUnlock">Unlock</button>
+          <button class="secondary" id="devCancel">Cancel</button>
+        </div>
+        <div class="muted" id="devStatus"></div>
+      </div>
+      <div id="devTools" class="hidden" style="margin-top:12px; padding:12px; background:#f0fdf4; border-radius:8px; border:1px solid #bbf7d0;">
+        <h3 style="margin:0 0 8px;">✅ Admin Mode</h3>
+        <p style="font-size:13px; margin-bottom:8px;">Manage system settings and sheet formatting.</p>
+        <div class="btns">
+          <button class="secondary" id="devClear">🧹 Clear Drafts</button>
+          <button class="secondary" id="formatSheet" style="border-color:#059669; color:#059669;">📊 Format Sheet</button>
+          <button class="secondary" id="resetSheet" style="border-color:#ef4444; color:#ef4444;">⚠️ Reset Sheet</button>
+        </div>
+      </div>
     </div>
 
   </div>
 
   <script>
-    var APPS_SCRIPT_API_URL = 'https://script.google.com/macros/s/AKfycbzhXrKbCbxbWQzcarr7te9NUmfl9hFXKiOmIJf34zeAW-rW4l4wTHrsKb0zFjL5fgZg/exec';
-    var DRAFT_KEY = 'documentWorkflowDraftV2';
-    var MIN_STEPS = 1;
-    var DEFAULT_STEPS = 5;
-    var DEVELOPER_LOGIN_ID = 'developer';
-    var DEVELOPER_LOGIN_PASSWORD = 'dev123';
-    var unlockedStepCount = 1;
+    // ⚠️ IMPORTANT: REPLACE THIS URL WITH YOUR DEPLOYED APPS SCRIPT WEB APP URL
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyC96HS__GfR-mqMRopMuLm2AqkZ4eNOC3Ia4V5DV4AExf8D0fpZL_lBGOtJ58B7DwJ6g/exec';
+    const DRAFT_KEY = 'wf_builder_draft_v1';
+    
+    const $ = id => document.getElementById(id);
+    const toast = (msg) => {
+      const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+      $('toast-container').appendChild(t);
+      setTimeout(() => t.remove(), 3000);
+    };
+    const esc = v => String(v||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+    const today = () => new Date().toISOString().split('T')[0];
+    const genId = () => `WF-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${String(new Date().getHours()).padStart(2,'0')}${String(new Date().getMinutes()).padStart(2,'0')}`;
 
-    function esc(v) {
-      return String(v == null ? '' : v)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+    // --- STEP MANAGEMENT ---
+    function createStep(value='') {
+      const c = $('stepsContainer');
+      const inp = document.createElement('input');
+      inp.type = 'text'; inp.className = 'step-input'; inp.placeholder = `Step ${c.children.length + 1}`; inp.value = value;
+      c.appendChild(inp);
     }
+    function getSteps() { return [...document.querySelectorAll('.step-input')].map(i => i.value.trim()).filter(Boolean); }
+    
+    $('addStepBtn').onclick = () => createStep();
+    $('removeStepBtn').onclick = () => {
+      const c = $('stepsContainer');
+      if (c.lastChild) c.removeChild(c.lastChild);
+    };
 
-    function todayIso() {
-      var d = new Date();
-      var m = String(d.getMonth() + 1).padStart(2, '0');
-      var day = String(d.getDate()).padStart(2, '0');
-      return d.getFullYear() + '-' + m + '-' + day;
-    }
-
-    function suggestWorkflowId() {
-      var d = new Date();
-      var y = d.getFullYear();
-      var m = String(d.getMonth() + 1).padStart(2, '0');
-      var day = String(d.getDate()).padStart(2, '0');
-      var hh = String(d.getHours()).padStart(2, '0');
-      var mm = String(d.getMinutes()).padStart(2, '0');
-      return 'WF-' + y + m + day + '-' + hh + mm;
-    }
-
-    function createStepInput(value) {
-      var container = document.getElementById('stepsContainer');
-      var row = document.createElement('div');
-      row.className = 'step-row';
-
-      var input = document.createElement('input');
-      input.type = 'text';
-      input.className = 'step-input';
-      input.placeholder = 'Step ' + (container.children.length + 1);
-      input.value = value || '';
-      input.addEventListener('input', function() {
-        saveDraft();
-        syncUnlockedStepCountFromValues_();
-      });
-
-      row.appendChild(input);
-      container.appendChild(row);
-      relabelSteps();
-      applyStepLocks_();
-    }
-
-    function relabelSteps() {
-      var rows = document.querySelectorAll('#stepsContainer .step-input');
-      for (var i = 0; i < rows.length; i++) {
-        rows[i].placeholder = 'Step ' + (i + 1);
-      }
-    }
-
-    function applyStepLocks_() {
-      var inputs = document.querySelectorAll('#stepsContainer .step-input');
-      var maxUnlocked = Math.max(1, Math.min(unlockedStepCount, inputs.length || 1));
-      unlockedStepCount = maxUnlocked;
-      for (var i = 0; i < inputs.length; i++) {
-        inputs[i].disabled = i >= maxUnlocked;
-      }
-    }
-
-    function syncUnlockedStepCountFromValues_() {
-      var inputs = document.querySelectorAll('#stepsContainer .step-input');
-      if (!inputs.length) {
-        unlockedStepCount = 1;
-        return;
-      }
-
-      var unlocked = 1;
-      for (var i = 0; i < inputs.length; i++) {
-        if (String(inputs[i].value || '').trim()) {
-          unlocked = i + 2;
-        } else {
-          break;
-        }
-      }
-      unlockedStepCount = Math.max(1, Math.min(unlocked, inputs.length));
-      applyStepLocks_();
-    }
-
-    function unlockNextStep() {
-      var inputs = document.querySelectorAll('#stepsContainer .step-input');
-      var status = document.getElementById('panelOneStatus');
-      if (!inputs.length) return;
-
-      var currentIndex = Math.max(0, unlockedStepCount - 1);
-      if (currentIndex < inputs.length && !String(inputs[currentIndex].value || '').trim()) {
-        status.textContent = 'Please complete Step ' + (currentIndex + 1) + ' before moving next.';
-        inputs[currentIndex].focus();
-        return;
-      }
-
-      if (unlockedStepCount >= inputs.length) {
-        status.textContent = 'All available steps are unlocked.';
-        return;
-      }
-
-      unlockedStepCount = unlockedStepCount + 1;
-      applyStepLocks_();
-      status.textContent = '';
-      inputs[unlockedStepCount - 1].focus();
-      saveDraft();
-    }
-
-    function normalizeStepText_(value) {
-      return String(value || '').trim().toLowerCase();
-    }
-
-    function stepPriority_(stepText) {
-      var t = normalizeStepText_(stepText);
-      if (!t) return 999;
-
-      if (/initiator|initiate|request|create|start|submit|draft|prepare|maker|input/.test(t)) return 10;
-      if (/review|check|verify|validate|inspect|screen/.test(t)) return 20;
-      if (/approve|approval|authorize|auth|sign|manager/.test(t)) return 30;
-      if (/finance|account|payment|budget|cost|invoice/.test(t)) return 40;
-      if (/final|complete|close|release|dispatch|archive|file/.test(t)) return 50;
-
-      return 60;
-    }
-
-    function autoOrderSteps_(steps) {
-      var list = Array.isArray(steps) ? steps : [];
-      var decorated = [];
-      for (var i = 0; i < list.length; i++) {
-        var raw = String(list[i] || '').trim();
-        if (!raw) continue;
-        decorated.push({
-          text: raw,
-          index: i,
-          priority: stepPriority_(raw)
-        });
-      }
-
-      decorated.sort(function(a, b) {
-        if (a.priority !== b.priority) return a.priority - b.priority;
-        return a.index - b.index;
-      });
-
-      var ordered = [];
-      for (var j = 0; j < decorated.length; j++) {
-        ordered.push(decorated[j].text);
-      }
-      return ordered;
-    }
-
-    function getSteps() {
-      var inputs = document.querySelectorAll('#stepsContainer .step-input');
-      var arr = [];
-      for (var i = 0; i < inputs.length; i++) {
-        var v = inputs[i].value.trim();
-        if (v) arr.push(v);
-      }
-      return autoOrderSteps_(arr);
-    }
-
-    function buildBestWorkflowSummary(title, steps) {
-      return [
-        'Workflow: ' + title,
-        'Total steps: ' + steps.length,
-        'Suggested route: Initiator -> ' + steps.join(' -> ') + ' -> Archive',
-        'Best practice: assign 1 owner per step, set deadline, and log approval timestamp.'
-      ].join('\n');
-    }
-
-    function getEntryData() {
-      var title = document.getElementById('title').value.trim();
-      var workflowId = document.getElementById('workflow_id').value.trim();
-      var steps = getSteps();
-      var report = buildBestWorkflowSummary(title, steps);
+    // --- DATA & API ---
+    function getData() {
       return {
-        title: title,
-        workflow_id: workflowId,
-        document_type: 'Workflow',
-        date: document.getElementById('date').value || todayIso(),
-        amount: '',
-        reference_number: document.getElementById('reference_number').value.trim() || workflowId,
-        tags: document.getElementById('tags').value.trim(),
-        steps: steps,
-        workflow_report: report
+        workflow_id: $('workflow_id').value.trim(),
+        title: $('title').value.trim(),
+        doc_type: $('doc_type').value,
+        date: today(),
+        steps: getSteps(),
+        summary: `Workflow: ${$('title').value}\nType: ${$('doc_type').value}\nSteps: ${getSteps().join(' → ')}\nCreated: ${today()}`
       };
     }
 
-    function saveDraft() {
+    async function post(action, data) {
       try {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify(getEntryData()));
-      } catch (e) {}
-    }
-
-    function restoreDraft() {
-      try {
-        var raw = localStorage.getItem(DRAFT_KEY);
-        if (!raw) {
-          for (var i = 0; i < DEFAULT_STEPS; i++) createStepInput('');
-          document.getElementById('date').value = todayIso();
-          document.getElementById('workflow_id').value = suggestWorkflowId();
-          return;
-        }
-
-        var d = JSON.parse(raw);
-        document.getElementById('title').value = d.title || '';
-        document.getElementById('workflow_id').value = d.workflow_id || suggestWorkflowId();
-        document.getElementById('date').value = d.date || todayIso();
-        document.getElementById('reference_number').value = d.reference_number || '';
-        document.getElementById('tags').value = d.tags || '';
-
-        var steps = Array.isArray(d.steps) && d.steps.length ? d.steps : [];
-        if (!steps.length) {
-          for (var j = 0; j < DEFAULT_STEPS; j++) createStepInput('');
-        } else {
-          for (var k = 0; k < steps.length; k++) createStepInput(steps[k]);
-        }
-      } catch (e) {
-        for (var i2 = 0; i2 < DEFAULT_STEPS; i2++) createStepInput('');
-      }
-    }
-
-    function renderReportAndMove() {
-      var title = document.getElementById('title').value.trim();
-      var workflowId = document.getElementById('workflow_id').value.trim();
-      var steps = getSteps();
-      var status = document.getElementById('panelOneStatus');
-
-      if (!title) {
-        status.textContent = 'Title is required.';
-        return;
-      }
-      if (steps.length < MIN_STEPS) {
-        status.textContent = 'At least one step is required.';
-        return;
-      }
-
-      status.textContent = '';
-      var summary = buildBestWorkflowSummary(title, steps);
-      if (workflowId && !document.getElementById('reference_number').value.trim()) {
-        document.getElementById('reference_number').value = workflowId;
-      }
-      document.getElementById('reportTitle').textContent = title;
-      document.getElementById('reportMeta').textContent = 'Professional preview generated from your current workflow steps.';
-      document.getElementById('reportTypeBadge').textContent = 'Approval Flow';
-      document.getElementById('reportIdBadge').textContent = 'ID: ' + (workflowId || '-');
-      document.getElementById('reportCountBadge').textContent = steps.length + (steps.length === 1 ? ' Step' : ' Steps');
-
-      var reportSteps = document.getElementById('reportSteps');
-      reportSteps.innerHTML = '';
-      for (var i = 0; i < steps.length; i++) {
-        var li = document.createElement('li');
-        li.innerHTML =
-          '<div class="timeline-step">Step ' + (i + 1) + '</div>' +
-          '<div class="timeline-text">' + esc(steps[i]) + '</div>';
-        reportSteps.appendChild(li);
-      }
-
-      document.getElementById('workflowSummary').value = summary;
-      document.getElementById('panelOne').classList.add('hidden');
-      document.getElementById('panelTwo').classList.remove('hidden');
-      saveDraft();
-    }
-
-    async function postApi(action, data) {
-      if (typeof google !== 'undefined' && google.script && google.script.run) {
-        return await new Promise(function(resolve, reject) {
-          google.script.run
-            .withSuccessHandler(function(result) {
-              resolve(result || { success: false, error: 'Empty server response' });
-            })
-            .withFailureHandler(function(err) {
-              reject(new Error(err && err.message ? err.message : String(err)));
-            })
-            .webApi(action, data || {});
-        });
-      }
-
-      var endpoint = String(APPS_SCRIPT_API_URL || '').trim() || window.location.href.split('?')[0];
-      var timeoutMs = 20000;
-      var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      var timer = null;
-      if (controller) {
-        timer = setTimeout(function() {
-          controller.abort();
-        }, timeoutMs);
-      }
-
-      var res;
-      try {
-        res = await fetch(endpoint, {
+        const res = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: action, data: data }),
-          signal: controller ? controller.signal : undefined
+          headers: {'Content-Type':'text/plain;charset=utf-8'},
+          body: JSON.stringify({action, data})
         });
-      } catch (fetchErr) {
-        if (fetchErr && fetchErr.name === 'AbortError') {
-          throw new Error('Request timed out after ' + (timeoutMs / 1000) + ' seconds.');
-        }
-        throw fetchErr;
-      } finally {
-        if (timer) clearTimeout(timer);
-      }
+        return await res.json();
+      } catch(e) { throw new Error('Network error: ' + e.message); }
+    }
 
-      var text = await res.text();
+    // --- ACTIONS ---
+    $('saveBtn').onclick = async () => {
+      const data = getData();
+      if (!data.title) { toast('⚠️ Title required'); return; }
+      if (!data.doc_type) { toast('⚠️ Document type required'); return; }
+      if (data.steps.length < 1) { toast('⚠️ At least 1 step required'); return; }
+
+      $('saveBtn').disabled = true; $('saveBtn').textContent = 'Saving...';
       try {
-        return JSON.parse(text);
-      } catch (e) {
-        var preview = String(text || '').replace(/\s+/g, ' ').slice(0, 80);
-        throw new Error('API response is not JSON. Endpoint: ' + endpoint + ' | Response: ' + preview);
-      }
-    }
+        const res = await post('submit', data);
+        if (!res.success) throw new Error(res.error || 'Save failed');
+        toast('✅ Saved to Workflows sheet');
+        $('buildStatus').textContent = `ID: ${res.document_id} | Saved at ${new Date().toLocaleTimeString()}`;
+        clearForm();
+        runSearch();
+      } catch(e) { toast('❌ ' + e.message); }
+      finally { $('saveBtn').disabled = false; $('saveBtn').textContent = '💾 Save to Workflows'; }
+    };
 
-    function showRuntimeHint() {
-      if (typeof google !== 'undefined' && google.script && google.script.run) return;
-      if (String(APPS_SCRIPT_API_URL || '').trim()) return;
-      var status = document.getElementById('entryStatus');
-      if (!status) return;
-      status.textContent = 'Warning: Not in Apps Script runtime. Open the Web App /exec URL to submit/search.';
-    }
-
-    async function submitWorkflow(saveAsDraft) {
-      var submitBtn = document.getElementById('submitBtn');
-      var draftBtn = document.getElementById('saveDraftCloudBtn');
-      var status = document.getElementById('entryStatus');
-      submitBtn.disabled = true;
-      if (draftBtn) draftBtn.disabled = true;
-      status.textContent = saveAsDraft ? 'Saving draft to cloud...' : 'Submitting workflow...';
-
-      try {
-        var payload = getEntryData();
-        payload.status = saveAsDraft ? 'Draft' : 'Submitted';
-        var result = await postApi('submit', payload);
-        if (!result.success) throw new Error(result.error || 'Submit failed');
-
-        status.innerHTML = (saveAsDraft ? 'Draft saved to cloud. Document ID: <b>' : 'Saved. Document ID: <b>') + esc(result.document_id) + '</b>';
-        if (!saveAsDraft) clearAll();
-        await runSearch();
-      } catch (err) {
-        status.textContent = err.message;
-      } finally {
-        submitBtn.disabled = false;
-        if (draftBtn) draftBtn.disabled = false;
-      }
-    }
-
-    function normalizeDisplayDate(value) {
-      var s = String(value || '').trim();
-      if (!s) return '-';
-      var d = new Date(s);
-      if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString();
-      }
-      return s;
-    }
-
-    function lockPillClass(status) {
-      var s = String(status || '').toLowerCase();
-      if (s === 'active') return 'lock-active';
-      if (s === 'completed') return 'lock-completed';
-      if (s === 'cleared') return 'lock-cleared';
-      return 'lock-none';
-    }
-
-    function parseLockTargetsInput() {
-      var raw = document.getElementById('lockTargets').value || '';
-      return raw
-        .split(/[\n,]/)
-        .map(function(v) { return String(v || '').trim(); })
-        .filter(function(v) { return !!v; });
-    }
-
-    async function loadLockConfig() {
-      var status = document.getElementById('developerStatus');
-      if (!status) return;
-      try {
-        var result = await postApi('getLockConfig', {});
-        if (!result.success) throw new Error(result.error || 'Failed to load lock config');
-        var cfg = result.config || {};
-        document.getElementById('lockMode').value = cfg.mode || 'selected';
-        document.getElementById('lockTargets').value = (cfg.targets || []).join('\n');
-      } catch (err) {
-        status.textContent = err.message;
-      }
-    }
-
-    async function saveLockConfig() {
-      var status = document.getElementById('developerStatus');
-      if (!status) return;
-      status.textContent = 'Saving lock structure...';
-      try {
-        var payload = {
-          mode: document.getElementById('lockMode').value,
-          targets: parseLockTargetsInput()
-        };
-        var result = await postApi('setLockConfig', payload);
-        if (!result.success) throw new Error(result.error || 'Failed to save lock config');
-        status.textContent = 'Lock structure saved. Mode: ' + (result.config && result.config.mode ? result.config.mode : '-');
-      } catch (err) {
-        status.textContent = err.message;
-      }
-    }
-
-    async function clearAllLocksDeveloper() {
-      var status = document.getElementById('developerStatus');
-      if (!status) return;
-      status.textContent = 'Clearing all locks...';
-      try {
-        var result = await postApi('clearAllLocks', {});
-        if (!result.success) throw new Error(result.error || 'Failed to clear locks');
-        status.textContent = 'All locks cleared for ' + (result.updated || 0) + ' file(s).';
-        await runSearch();
-      } catch (err) {
-        status.textContent = err.message;
-      }
-    }
-
-    async function signNextStep(documentId) {
-      var status = document.getElementById('searchStatus');
-      status.textContent = 'Signing next step for ' + documentId + '...';
-      try {
-        var result = await postApi('signStep', { document_id: documentId });
-        if (!result.success) throw new Error(result.error || 'Failed to sign step');
-        status.textContent = 'Signed successfully for ' + documentId + '.';
-        await runSearch();
-      } catch (err) {
-        status.textContent = err.message;
-      }
-    }
-
-    function clearSearchFilters() {
-      document.getElementById('query').value = '';
-      document.getElementById('fType').value = '';
-      document.getElementById('fStatus').value = '';
-      document.getElementById('fFrom').value = '';
-      document.getElementById('fTo').value = '';
-      runSearch();
-    }
-
-    function openDeveloperLogin() {
-      var panel = document.getElementById('developerLoginPanel');
-      if (!panel) return;
-      panel.classList.remove('hidden');
-      var idInput = document.getElementById('developerLoginId');
-      if (idInput) idInput.focus();
-    }
-
-    function closeDeveloperLogin() {
-      var panel = document.getElementById('developerLoginPanel');
-      if (panel) panel.classList.add('hidden');
-      var status = document.getElementById('developerAccessStatus');
-      if (status) status.textContent = '';
-    }
-
-    async function unlockDeveloperPanel() {
-      var idValue = String(document.getElementById('developerLoginId').value || '').trim();
-      var passwordValue = String(document.getElementById('developerLoginPassword').value || '');
-      var status = document.getElementById('developerAccessStatus');
-
-      if (idValue !== DEVELOPER_LOGIN_ID || passwordValue !== DEVELOPER_LOGIN_PASSWORD) {
-        status.textContent = 'Invalid developer ID or password.';
-        return;
-      }
-
-      status.textContent = 'Access granted.';
-      document.getElementById('developerLockCard').classList.remove('hidden');
-      closeDeveloperLogin();
-      await loadLockConfig();
-    }
-
-    function clearAll() {
-      document.getElementById('title').value = '';
-      document.getElementById('workflow_id').value = suggestWorkflowId();
-      document.getElementById('reference_number').value = '';
-      document.getElementById('tags').value = '';
-      document.getElementById('date').value = todayIso();
-      document.getElementById('panelOneStatus').textContent = '';
-
-      var container = document.getElementById('stepsContainer');
-      container.innerHTML = '';
-      for (var i = 0; i < DEFAULT_STEPS; i++) createStepInput('');
-
-      document.getElementById('reportTitle').textContent = '-';
-      document.getElementById('reportMeta').textContent = '-';
-      document.getElementById('reportTypeBadge').textContent = 'Approval Flow';
-      document.getElementById('reportIdBadge').textContent = 'ID: -';
-      document.getElementById('reportCountBadge').textContent = '0 Steps';
-      document.getElementById('reportSteps').innerHTML = '';
-      document.getElementById('workflowSummary').value = '';
-
-      document.getElementById('panelTwo').classList.add('hidden');
-      document.getElementById('panelOne').classList.remove('hidden');
+    function clearForm() {
+      $('title').value = ''; $('doc_type').value = '';
+      $('stepsContainer').innerHTML = ''; createStep(); createStep(); createStep();
+      $('buildStatus').textContent = '';
       localStorage.removeItem(DRAFT_KEY);
     }
 
+    // --- SEARCH WITH ERROR HANDLING ---
     async function runSearch() {
-      var status = document.getElementById('searchStatus');
-      var list = document.getElementById('results');
-      list.innerHTML = '';
-      status.textContent = 'Searching...';
-
+      $('searchBtn').disabled = true; 
+      $('searchStatus').textContent = 'Searching...'; 
+      $('results').innerHTML = '';
+      
       try {
-        var query = document.getElementById('query').value.trim();
-        var filters = {
-          document_type: document.getElementById('fType').value,
-          status: document.getElementById('fStatus').value,
-          date_from: document.getElementById('fFrom').value,
-          date_to: document.getElementById('fTo').value
-        };
+        const res = await post('search', { 
+          query: $('query').value.trim(), 
+          filters: { 
+            doc_type: $('fType').value,
+            date_from: $('fDateFrom').value,
+            date_to: $('fDateTo').value
+          } 
+        });
+        
+        if (!res.success) throw new Error(res.error || 'Search failed');
+        
+        // Check if results exist
+        const results = res.results || [];
+        
+        $('searchStatus').textContent = results.length ? `✅ ${results.length} result(s) found` : 'No results found';
+        
+        if (results.length === 0) {
+          $('results').innerHTML = '<div style="text-align:center;padding:40px;color:#999;">📭 No workflows found</div>';
+          return;
+        }
 
-        var result = await postApi('search', { query: query, filters: filters });
-        var rows = result && result.results ? result.results : [];
-
-        status.textContent = rows.length ? ('Found ' + rows.length + ' record(s)') : 'No results';
-
-        for (var i = 0; i < rows.length; i++) {
-          var r = rows[i];
-          var card = document.createElement('div');
-          var statusKey = String(r.status || '').toLowerCase() === 'draft' ? 'draft' : 'submitted';
-          var lockRequired = !!r.lock_required;
-          var lockStatus = String(r.lock_status || 'Not Required');
-          var signedSteps = Number(r.signed_steps || 0);
-          var totalSteps = Number(r.total_steps || 0);
-          var nextStep = String(r.next_step || '-');
-          var lockMeta = lockRequired
-            ? ('Lock: ' + signedSteps + '/' + totalSteps + ' signed | Next: ' + nextStep)
-            : 'Lock: Not required';
-          var signBtn = (lockRequired && String(lockStatus).toLowerCase() === 'active' && signedSteps < totalSteps)
-            ? ('<button class="secondary inline-btn sign-step-btn" data-doc="' + esc(r.document_id) + '">Sign Next Step</button>')
-            : '';
+        results.forEach(r => {
+          const card = document.createElement('div'); 
           card.className = 'result-card';
-          card.innerHTML =
-            '<div class="result-title"><b>' + esc(r.document_id) + ' - ' + esc(r.title) + '</b>' +
-            '<span class="badge ' + statusKey + '">' + esc(r.status || '-') + '</span></div>' +
-            '<div class="result-meta">' + esc(r.document_type) + ' | ' + esc(normalizeDisplayDate(r.date)) + ' | Ref: ' + esc(r.reference_number || '-') + '</div>' +
-            '<div class="result-meta">Created: ' + esc(r.created_at || '-') + '</div>' +
-            '<div class="result-meta"><span class="pill ' + lockPillClass(lockStatus) + '">' + esc(lockStatus) + '</span> ' + esc(lockMeta) + '</div>' +
-            '<div class="result-steps"><b>Steps:</b> ' + esc(r.steps || '-') + '</div>';
-          if (signBtn) {
-            card.innerHTML += signBtn;
+          
+          // Extract steps from summary if available
+          let stepsText = 'No steps';
+          if (r.summary && r.summary.includes('Steps:')) {
+            stepsText = r.summary.split('Steps:')[1].split('\n')[0].trim();
           }
-          list.appendChild(card);
-        }
-
-        var signButtons = document.querySelectorAll('.sign-step-btn');
-        for (var s = 0; s < signButtons.length; s++) {
-          signButtons[s].addEventListener('click', function() {
-            var docId = this.getAttribute('data-doc');
-            signNextStep(docId);
-          });
-        }
-      } catch (err) {
-        status.textContent = err.message;
+          
+          card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:10px;">
+              <div>
+                <b style="font-size:16px;color:#0b74de;">${esc(r.workflow_id || 'N/A')}</b>
+                <span class="badge" style="margin-left:8px;">${esc(r.doc_type || 'Unknown')}</span>
+              </div>
+              <span class="date-badge">📅 ${esc(r.date || 'N/A')}</span>
+            </div>
+            <div style="margin-top:8px;font-size:15px;font-weight:600;">${esc(r.title || 'Untitled')}</div>
+            <div style="margin-top:8px;font-size:13px;color:#666;">
+              <b>Steps:</b> ${esc(stepsText)}
+            </div>
+            ${r.summary ? `<div style="margin-top:6px;font-size:12px;color:#999;background:#f9fafb;padding:8px;border-radius:6px;white-space:pre-wrap;">${esc(r.summary)}</div>` : ''}
+          `;
+          $('results').appendChild(card);
+        });
+      } catch(e) { 
+        console.error('Search error:', e);
+        $('searchStatus').textContent = '❌ Error: ' + e.message; 
+        toast('❌ ' + e.message);
+        $('results').innerHTML = '<div style="text-align:center;padding:40px;color:#ef4444;">Error loading results. Check console for details.</div>';
+      }
+      finally { 
+        $('searchBtn').disabled = false; 
       }
     }
 
-    document.getElementById('addStepBtn').addEventListener('click', function() {
-      createStepInput('');
-      syncUnlockedStepCountFromValues_();
-      saveDraft();
-    });
+    $('searchBtn').onclick = runSearch;
+    $('clearSearchBtn').onclick = () => { 
+      $('query').value=''; 
+      $('fType').value=''; 
+      $('fDateFrom').value=''; 
+      $('fDateTo').value=''; 
+      runSearch(); 
+    };
+    $('query').addEventListener('keypress', e => { if(e.key==='Enter') runSearch(); });
 
-    document.getElementById('removeStepBtn').addEventListener('click', function() {
-      var container = document.getElementById('stepsContainer');
-      if (container.children.length > MIN_STEPS) {
-        container.removeChild(container.lastChild);
-        relabelSteps();
-        syncUnlockedStepCountFromValues_();
+    // --- DEVELOPER ---
+    $('openDevBtn').onclick = () => $('devAuth').classList.remove('hidden');
+    $('devCancel').onclick = () => $('devAuth').classList.add('hidden');
+    $('devUnlock').onclick = () => {
+      if ($('devUser').value.trim() === 'developer' && $('devPass').value === 'developer123') {
+        $('devAuth').classList.add('hidden'); 
+        $('devTools').classList.remove('hidden');
+        $('devStatus').textContent = ''; 
+        toast('🔓 Developer access granted');
+      } else { 
+        $('devStatus').textContent = '❌ Invalid credentials'; 
       }
-      saveDraft();
-    });
-    document.getElementById('nextStepBtn').addEventListener('click', unlockNextStep);
-
-    document.getElementById('confirmBtn').addEventListener('click', renderReportAndMove);
-    document.getElementById('backBtn').addEventListener('click', function() {
-      document.getElementById('panelTwo').classList.add('hidden');
-      document.getElementById('panelOne').classList.remove('hidden');
-    });
-    document.getElementById('submitBtn').addEventListener('click', function() { submitWorkflow(false); });
-    document.getElementById('saveDraftCloudBtn').addEventListener('click', function() { submitWorkflow(true); });
-    document.getElementById('clearBtn').addEventListener('click', function() {
-      document.getElementById('entryStatus').textContent = '';
-      clearAll();
-    });
-
-    ['title', 'workflow_id', 'date', 'reference_number', 'tags'].forEach(function(id) {
-      var el = document.getElementById(id);
-      el.addEventListener('input', saveDraft);
-      el.addEventListener('change', saveDraft);
-    });
-
-    ['searchBtn', 'fType', 'fStatus', 'fFrom', 'fTo'].forEach(function(id) {
-      document.getElementById(id).addEventListener('click', runSearch);
-      document.getElementById(id).addEventListener('change', runSearch);
-    });
-    document.getElementById('clearSearchBtn').addEventListener('click', clearSearchFilters);
-    document.getElementById('saveLockConfigBtn').addEventListener('click', saveLockConfig);
-    document.getElementById('clearLocksBtn').addEventListener('click', clearAllLocksDeveloper);
-    document.getElementById('openDeveloperLoginBtn').addEventListener('click', openDeveloperLogin);
-    document.getElementById('unlockDeveloperBtn').addEventListener('click', unlockDeveloperPanel);
-    document.getElementById('cancelDeveloperBtn').addEventListener('click', closeDeveloperLogin);
-
-    document.getElementById('query').addEventListener('keydown', function(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
+    };
+    $('devClear').onclick = () => { localStorage.clear(); toast('🧹 Local drafts cleared'); };
+    
+    $('formatSheet').onclick = async () => {
+      try {
+        const res = await post('formatSheet', {});
+        if (!res.success) throw new Error(res.error);
+        toast('📊 Sheet formatted successfully!');
+      } catch(e) { toast('❌ ' + e.message); }
+    };
+    
+    $('resetSheet').onclick = async () => {
+      if (!confirm('⚠️ WARNING: This will DELETE all data in the Workflows sheet and create a fresh one. Continue?')) return;
+      
+      $('resetSheet').disabled = true;
+      try {
+        const res = await post('resetSheet', {});
+        if (!res.success) throw new Error(res.error);
+        toast('🔄 Sheet reset complete!');
         runSearch();
-      }
-    });
+      } catch(e) { toast('❌ ' + e.message); }
+      finally { $('resetSheet').disabled = false; }
+    };
 
-    restoreDraft();
-    syncUnlockedStepCountFromValues_();
-    showRuntimeHint();
-    runSearch();
+    // --- INIT ---
+    (function init() {
+      try {
+        const d = JSON.parse(localStorage.getItem(DRAFT_KEY));
+        if (d && d.title) {
+          $('title').value = d.title;
+          $('workflow_id').value = d.workflow_id || genId();
+          $('doc_type').value = d.doc_type;
+          const c = $('stepsContainer'); c.innerHTML = '';
+          (d.steps || ['']).forEach(s => createStep(s));
+        } else {
+          $('workflow_id').value = genId();
+          for(let i=0;i<3;i++) createStep();
+        }
+      } catch(e) {
+        $('workflow_id').value = genId();
+        for(let i=0;i<3;i++) createStep();
+      }
+      runSearch();
+    })();
   </script>
 </body>
 </html>
